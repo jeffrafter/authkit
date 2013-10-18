@@ -3,7 +3,8 @@ require 'rake/testtask'
 
 gem_name = :authkit
 
-Rake::TestTask.new(:test => ["generator:cleanup", "generator:prepare", "generator:#{gem_name}"]) do |task|
+#Rake::TestTask.new(:test => ["generator:cleanup", "generator:prepare", "generator:#{gem_name}"]) do |task|
+Rake::TestTask.new(:test) do |task|
   task.libs << "lib" << "test"
   task.pattern = "test/**/*_test.rb"
   task.verbose = true
@@ -20,40 +21,43 @@ end
 namespace :generator do
   desc "Cleans up the test app before running the generator"
   task :cleanup do
-    FileUtils.rm_rf("test/rails")
+    FileUtils.rm_rf("test/tmp/sample")
   end
 
   desc "Prepare the test app before running the generator"
   task :prepare do
-    system "cd test && rails rails"
+    return if Dir.exist?("test/tmp/sample")
+
+    system "cd test/tmp && rails new sample"
 
     # I don't like testing performance!
-    FileUtils.rm_rf("test/rails/test/performance")
+    FileUtils.rm_rf("test/tmp/sample/test/performance")
 
     # Add any gems you need for testing
-    # system "echo \"\" >> test/rails/Gemfile"
+    # system "echo \"\" >> test/sample/Gemfile"
 
     # bundle
-    system "cd test/rails && bundle"
+    gem_root = File.expand_path(File.dirname(__FILE__))
+    system "echo \"gem '#{gem_name}', :path => '#{gem_root}'\" >> test/tmp/sample/Gemfile"
+    system "cd test/tmp/sample && bundle"
 
     # Make a thing
-    system "cd test/rails && rails g scaffold thing name:string mood:string"
+    system "cd test/tmp/sample && rails g scaffold thing name:string mood:string"
 
-    FileUtils.mkdir_p("test/rails/vendor/plugins")
-    gem_root = File.expand_path(File.dirname(__FILE__))
-    system("ln -s #{gem_root} test/rails/vendor/plugins/#{gem_name}")
+    # Delete the tests and use ours
+    system "rm -rf test/tmp/sample/test"
   end
 
   desc "Prepares the application with an alternate database"
   task :database do
     puts "==  Configuring the database =================================================="
-    system "cp config/database.yml.example test/rails/config/database.yml"
-    system "cd test/rails && rake db:migrate:reset"
+    system "cp config/database.yml.example test/tmp/sample/config/database.yml"
+    system "cd test/tmp/sample && rake db:migrate:reset"
   end
 
   desc "Run the #{gem_name} generator"
   task gem_name do
-    system "cd test/rails && rails g #{gem_name} && rake db:migrate db:test:prepare"
+    system "cd test/tmp/sample && rails g #{gem_name}:install && rake db:migrate db:test:prepare"
   end
 
 end

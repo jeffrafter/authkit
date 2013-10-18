@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Authkit::VERSION
   spec.authors       = ["Jeff Rafter"]
   spec.email         = ["jeffrafter@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.description   = %q{Auth for your Rails application}
+  spec.summary       = %q{Auth for your Rails application}
+  spec.homepage      = "https://github.com/jeffrafter/authkit"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
