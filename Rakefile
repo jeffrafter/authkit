@@ -3,8 +3,8 @@ require 'rake/testtask'
 
 gem_name = :authkit
 
-#Rake::TestTask.new(:test => ["generator:cleanup", "generator:prepare", "generator:#{gem_name}"]) do |task|
-Rake::TestTask.new(:test) do |task|
+Rake::TestTask.new(:test => ["generator:cleanup", "generator:prepare", "generator:#{gem_name}"]) do |task|
+#Rake::TestTask.new(:test) do |task|
   task.libs << "lib" << "test"
   task.pattern = "test/**/*_test.rb"
   task.verbose = true
@@ -43,11 +43,10 @@ namespace :generator do
 
     # Make a thing
     system "cd test/tmp/sample && rails g scaffold thing name:string mood:string"
-
-    # Delete the tests and use ours
-    system "rm -rf test/tmp/sample/test"
   end
 
+  # This task is not used unless you need to test the generator with an alternate database
+  # such as mysql or postgres. By default the tests utilize sqlite3
   desc "Prepares the application with an alternate database"
   task :database do
     puts "==  Configuring the database =================================================="

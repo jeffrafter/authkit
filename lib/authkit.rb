@@ -1,5 +1,5 @@
 require "authkit/version"
 
 module Authkit
-  # Your code goes here...
+  require 'authkit/engine' if defined?(Rails)
 end
