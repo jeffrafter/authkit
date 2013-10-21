@@ -1,6 +1,18 @@
 # Authkit
 
-TODO: Write a gem description
+A gem for installing auth into you app.
+
+TODO:
+
+Handle token expiry (for remember tokens, reset password tokens, unlock tokens and confirmation tokens)
+
+  def self.user_from_remember_token(token)
+    user = user_from_token(token)
+    user = nil if user && user.remember_token_created_at < 30.days.ago
+    user
+  end
+
+
 
 ## Installation
 

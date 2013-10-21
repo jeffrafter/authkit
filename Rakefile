@@ -1,64 +1,59 @@
 require "bundler/gem_tasks"
-require 'rake/testtask'
+require 'rspec/core/rake_task'
 
 gem_name = :authkit
 
-Rake::TestTask.new(:test => ["generator:cleanup", "generator:prepare", "generator:#{gem_name}"]) do |task|
-#Rake::TestTask.new(:test) do |task|
-  task.libs << "lib" << "test"
-  task.pattern = "test/**/*_test.rb"
+RSpec::Core::RakeTask.new(spec: ["generator:cleanup", "generator:prepare", "generator:#{gem_name}"]) do |task|
+  task.pattern = "spec/**/*_spec.rb"
   task.verbose = true
 end
 
-namespace :test do
-  Rake::TestTask.new(:database => ["generator:cleanup", "generator:prepare", "generator:database", "generator:#{gem_name}"]) do |task|
-    task.libs << "lib" << "test"
-    task.pattern = "test/**/*_test.rb"
+namespace :spec do
+  RSpec::Core::RakeTask.new(database: ["generator:cleanup", "generator:prepare", "generator:database", "generator:#{gem_name}"]) do |task|
+    task.pattern = "spec/**/*_spec.rb"
     task.verbose = true
   end
 end
 
 namespace :generator do
-  desc "Cleans up the test app before running the generator"
+  desc "Cleans up the sample app before running the generator"
   task :cleanup do
-    FileUtils.rm_rf("test/tmp/sample")
+    FileUtils.rm_rf("spec/tmp/sample") if Dir.exist?("spec/tmp/sample")
   end
 
-  desc "Prepare the test app before running the generator"
+  desc "Prepare the sample app before running the generator"
   task :prepare do
-    return if Dir.exist?("test/tmp/sample")
+    return if Dir.exist?("spec/tmp/sample")
 
-    system "cd test/tmp && rails new sample"
+    FileUtils.mkdir_p("spec/tmp")
 
-    # I don't like testing performance!
-    FileUtils.rm_rf("test/tmp/sample/test/performance")
-
-    # Add any gems you need for testing
-    # system "echo \"\" >> test/sample/Gemfile"
+    system "cd spec/tmp && rails new sample"
 
     # bundle
     gem_root = File.expand_path(File.dirname(__FILE__))
-    system "echo \"gem '#{gem_name}', :path => '#{gem_root}'\" >> test/tmp/sample/Gemfile"
-    system "cd test/tmp/sample && bundle"
+    system "echo \"gem 'rspec-rails'\" >> spec/tmp/sample/Gemfile"
+    system "echo \"gem '#{gem_name}', :path => '#{gem_root}'\" >> spec/tmp/sample/Gemfile"
+    system "cd spec/tmp/sample && bundle install"
+    system "cd spec/tmp/sample && rails g rspec:install"
 
     # Make a thing
-    system "cd test/tmp/sample && rails g scaffold thing name:string mood:string"
+    system "cd spec/tmp/sample && rails g scaffold thing name:string mood:string"
   end
 
   # This task is not used unless you need to test the generator with an alternate database
-  # such as mysql or postgres. By default the tests utilize sqlite3
+  # such as mysql or postgres. By default the sample application utilize sqlite3
   desc "Prepares the application with an alternate database"
   task :database do
     puts "==  Configuring the database =================================================="
-    system "cp config/database.yml.example test/tmp/sample/config/database.yml"
-    system "cd test/tmp/sample && rake db:migrate:reset"
+    system "cp config/database.yml.example spec/tmp/sample/config/database.yml"
+    system "cd spec/tmp/sample && rake db:migrate:reset"
   end
 
   desc "Run the #{gem_name} generator"
   task gem_name do
-    system "cd test/tmp/sample && rails g #{gem_name}:install && rake db:migrate db:test:prepare"
+    system "cd spec/tmp/sample && rails g #{gem_name}:install && rake db:migrate db:test:prepare"
   end
 
 end
 
-task :default => :test
+task :default => :spec
