@@ -33,7 +33,7 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
 
     # Forgot password / Password reset
     add_column :users, :reset_password_token, :string
-    add_column :users, :reset_password_created_at, :datetime
+    add_column :users, :reset_password_token_created_at, :datetime
 
     # Remember
     add_column :users, :remember_token, :string

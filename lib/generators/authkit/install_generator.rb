@@ -67,6 +67,7 @@ module Authkit
       # RSpec needs to be in the development group to be used in generators
       gem_group :test, :development do
         gem "rspec-rails"
+        gem "shoulda-matchers"
       end
 
       gem_group :test do

@@ -4,8 +4,6 @@ class User < ActiveRecord::Base
   has_secure_password
   has_one_time_password
 
-  attr_accessor :password_confirmation
-
   # Uncomment if you are not using strong params:
   #
   # attr_accessible :unconfirmed_email,
@@ -38,8 +36,8 @@ class User < ActiveRecord::Base
   def set_token(field)
     return unless self.persisted?
     verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_token)
-    self.send("#{field}_created_at=".to_sym, Time.now)
-    self.send("#{field}=".to_sym, verifier.generate(user.id))
+    self.send("#{field}_created_at=", Time.now)
+    self.send("#{field}=", verifier.generate(self.id))
     self.save
   end
 
@@ -95,7 +93,7 @@ class User < ActiveRecord::Base
   end
 
   def reset_password
-    set_token(:reset_password)
+    set_token(:reset_password_token)
     send_reset_password_instructions
   end
 
@@ -116,6 +114,10 @@ class User < ActiveRecord::Base
   # TODO, check if the email address is confirmed before sending
   def send_reset_password_instructions
 
+  end
+
+  def password_set?
+    self.password.present?
   end
 
   def downcase_email

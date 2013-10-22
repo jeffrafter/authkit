@@ -5,6 +5,7 @@ gem_name = :authkit
 
 RSpec::Core::RakeTask.new(spec: ["generator:cleanup", "generator:prepare", "generator:#{gem_name}"]) do |task|
   task.pattern = "spec/**/*_spec.rb"
+  task.rspec_opts = "--color --drb"
   task.verbose = true
 end
 

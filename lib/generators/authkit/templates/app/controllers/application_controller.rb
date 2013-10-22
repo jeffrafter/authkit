@@ -25,7 +25,7 @@
   end
 
   def login_required
-    deny_user(nil, "/login") unless logged_in?
+    deny_user(nil, login_path) unless logged_in?
   end
 
   def login(user)
