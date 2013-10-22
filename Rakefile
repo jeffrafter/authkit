@@ -18,12 +18,12 @@ end
 namespace :generator do
   desc "Cleans up the sample app before running the generator"
   task :cleanup do
-    FileUtils.rm_rf("spec/tmp/sample") if Dir.exist?("spec/tmp/sample")
+    FileUtils.rm_rf("spec/tmp/sample") if Dir.exist?("spec/tmp/sample") if ENV['SKIP_CLEANUP'].nil?
   end
 
   desc "Prepare the sample app before running the generator"
   task :prepare do
-    return if Dir.exist?("spec/tmp/sample")
+    next if Dir.exist?("spec/tmp/sample")
 
     FileUtils.mkdir_p("spec/tmp")
 
@@ -51,7 +51,7 @@ namespace :generator do
 
   desc "Run the #{gem_name} generator"
   task gem_name do
-    system "cd spec/tmp/sample && rails g #{gem_name}:install && rake db:migrate db:test:prepare"
+    system "cd spec/tmp/sample && rails g #{gem_name}:install --force && rake db:migrate db:test:prepare"
   end
 
 end
