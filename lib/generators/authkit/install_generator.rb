@@ -18,33 +18,51 @@ module Authkit
       empty_directory "app"
       empty_directory "app/models"
       empty_directory "app/controllers"
-      empty_directory "test"
-      empty_directory "test/models"
-      empty_directory "test/controllers"
+      empty_directory "app/views"
+      empty_directory "app/views/users"
+      empty_directory "app/views/sessions"
+      empty_directory "app/views/change_password"
+      empty_directory "app/views/forgot_password"
+      empty_directory "spec"
+      empty_directory "spec/models"
+      empty_directory "spec/controllers"
       empty_directory "lib"
 
       template "app/models/user.rb", "app/models/user.rb"
       template "app/controllers/users_controller.rb", "app/controllers/users_controller.rb"
       template "app/controllers/sessions_controller.rb", "app/controllers/sessions_controller.rb"
-      template "app/controllers/passwords_controller.rb", "app/controllers/passwords_controller.rb"
+      template "app/controllers/forgot_password_controller.rb", "app/controllers/forgot_password_controller.rb"
+      template "app/controllers/change_password_controller.rb", "app/controllers/change_password_controller.rb"
 
-      template "test/models/user_test.rb", "test/models/user_test.rb"
-      template "test/controllers/users_controller_test.rb", "test/controllers/users_controller_test.rb"
-      template "test/controllers/sessions_controller_test.rb", "test/controllers/sessions_controller_test.rb"
-      template "test/controllers/passwords_controller_test.rb", "test/controllers/passwords_controller_test.rb"
+      copy_file "app/views/users/new.html.erb", "app/views/users/new.html.erb"
+      copy_file "app/views/users/edit.html.erb", "app/views/users/edit.html.erb"
+      copy_file "app/views/sessions/new.html.erb", "app/views/sessions/new.html.erb"
+      copy_file "app/views/forgot_password/show.html.erb", "app/views/forgot_password/show.html.erb"
+      copy_file "app/views/change_password/show.html.erb", "app/views/change_password/show.html.erb"
 
-      template "lib/email_format_validator.rb", "lib/email_format_validator"
+      template "spec/models/user_spec.rb", "spec/models/user_spec.rb"
+      template "spec/controllers/users_controller_spec.rb", "spec/controllers/users_controller_spec.rb"
+      template "spec/controllers/sessions_controller_spec.rb", "spec/controllers/sessions_controller_spec.rb"
+      template "spec/controllers/forgot_password_controller_spec.rb", "spec/controllers/forgot_password_controller_spec.rb"
+      template "spec/controllers/change_password_controller_spec.rb", "spec/controllers/change_password_controller_spec.rb"
+
+      template "lib/email_format_validator.rb", "lib/email_format_validator.rb"
 
       insert_at_end_of_class "app/controllers/application_controller.rb", "app/controllers/application_controller.rb"
 
-      route "get '/signup', to: 'users#new', as: :signup"
-      route "get '/logout', to: 'sessions#destroy', as: :logout"
-      route "get '/login', to: 'sessions#new', as: :login"
+      route "get  '/password/forgot', to: 'forgot_password#show', as: :forgot_password"
+      route "post '/password/forgot', to: 'forgot_password#create'"
+      route "get  '/password/change/:token', to: 'change_password#show', as: :change_password"
+      route "post '/password/change/:token', to: 'change_password#create'"
+      route "get  '/signup', to: 'users#new', as: :signup"
+      route "get  '/logout', to: 'sessions#destroy', as: :logout"
+      route "get  '/login', to: 'sessions#new', as: :login"
 
       route "resources :sessions, only: [:new, :create, :destroy]"
       route "resources :users"
 
       gem "active_model_otp"
+      gem "bcrypt-ruby", '~> 3.0.0'
 
       # RSpec needs to be in the development group to be used in generators
       gem_group :test, :development do
