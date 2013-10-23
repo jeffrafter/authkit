@@ -15,6 +15,7 @@ module Authkit
       generate_migration("create_users")
       generate_migration("add_authkit_fields_to_users")
 
+      # Ensure the destination structure
       empty_directory "app"
       empty_directory "app/models"
       empty_directory "app/controllers"
@@ -28,19 +29,15 @@ module Authkit
       empty_directory "spec/controllers"
       empty_directory "lib"
 
+      # Fill out some templates (for now, this is just straight copy)
       template "app/models/user.rb", "app/models/user.rb"
       template "app/controllers/users_controller.rb", "app/controllers/users_controller.rb"
       template "app/controllers/sessions_controller.rb", "app/controllers/sessions_controller.rb"
       template "app/controllers/forgot_password_controller.rb", "app/controllers/forgot_password_controller.rb"
       template "app/controllers/change_password_controller.rb", "app/controllers/change_password_controller.rb"
 
-      copy_file "app/views/users/new.html.erb", "app/views/users/new.html.erb"
-      copy_file "app/views/users/edit.html.erb", "app/views/users/edit.html.erb"
-      copy_file "app/views/sessions/new.html.erb", "app/views/sessions/new.html.erb"
-      copy_file "app/views/forgot_password/show.html.erb", "app/views/forgot_password/show.html.erb"
-      copy_file "app/views/change_password/show.html.erb", "app/views/change_password/show.html.erb"
-
       template "spec/models/user_spec.rb", "spec/models/user_spec.rb"
+      template "spec/controllers/application_controller_spec.rb", "spec/controllers/application_controller_spec.rb"
       template "spec/controllers/users_controller_spec.rb", "spec/controllers/users_controller_spec.rb"
       template "spec/controllers/sessions_controller_spec.rb", "spec/controllers/sessions_controller_spec.rb"
       template "spec/controllers/forgot_password_controller_spec.rb", "spec/controllers/forgot_password_controller_spec.rb"
@@ -48,19 +45,36 @@ module Authkit
 
       template "lib/email_format_validator.rb", "lib/email_format_validator.rb"
 
+      # Don't treat these like templates
+      copy_file "app/views/users/new.html.erb", "app/views/users/new.html.erb"
+      copy_file "app/views/users/edit.html.erb", "app/views/users/edit.html.erb"
+      copy_file "app/views/sessions/new.html.erb", "app/views/sessions/new.html.erb"
+      copy_file "app/views/forgot_password/show.html.erb", "app/views/forgot_password/show.html.erb"
+      copy_file "app/views/change_password/show.html.erb", "app/views/change_password/show.html.erb"
+
+      # We don't want to override this file and may have a protected section
       insert_at_end_of_class "app/controllers/application_controller.rb", "app/controllers/application_controller.rb"
 
+      # Need a temp root
+      route "root 'welcome#index'"
+
+      # Setup the routes
       route "get  '/password/forgot', to: 'forgot_password#show', as: :forgot_password"
       route "post '/password/forgot', to: 'forgot_password#create'"
       route "get  '/password/change/:token', to: 'change_password#show', as: :change_password"
       route "post '/password/change/:token', to: 'change_password#create'"
+
       route "get  '/signup', to: 'users#new', as: :signup"
       route "get  '/logout', to: 'sessions#destroy', as: :logout"
       route "get  '/login', to: 'sessions#new', as: :login"
 
-      route "resources :sessions, only: [:new, :create, :destroy]"
-      route "resources :users"
+      route "put  '/account', to: 'users#update'"
+      route "get  '/account', to: 'users#edit', as: :user"
 
+      route "resources :sessions, only: [:new, :create, :destroy]"
+      route "resources :users, only: [:new, :create]"
+
+      # Support for has_secure_password and has_one_time_password
       gem "active_model_otp"
       gem "bcrypt-ruby", '~> 3.0.0'
 

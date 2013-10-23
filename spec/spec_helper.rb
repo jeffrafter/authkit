@@ -12,4 +12,6 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.infer_base_class_for_anonymous_controllers = false
   config.order = "random"
+  # Because we are not running things in Rails we need to stub some secrets
+  config.before(:each) { Rails.application.config.stub(:secret_token).and_return("SECRET") }
 end

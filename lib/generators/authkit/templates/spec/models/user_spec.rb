@@ -1,9 +1,7 @@
 require 'spec_helper'
 
 describe User do
-  let(:user_params) {
-    { unconfirmed_email: "test@example.com", username: "test", password: "example", password_confirmation: "example" }
-  }
+  let(:user_params) { { unconfirmed_email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
 
   it "has secure password support" do
     User.new.should respond_to(:authenticate)
@@ -46,10 +44,6 @@ describe User do
   end
 
   describe "tokens" do
-    before(:each) do
-      Rails.application.config.stub(:secret_token).and_return("SECRET")
-    end
-
     it "finds a user from a token" do
       verifier = ActiveSupport::MessageVerifier.new("SECRET")
       token = verifier.generate(1)
@@ -202,7 +196,6 @@ describe User do
     end
 
     it "resets the password" do
-      Rails.application.config.stub(:secret_token).and_return("SECRET")
       user = User.new
       user.should_receive(:persisted?).and_return(true)
       user.should_receive(:id).and_return(1)

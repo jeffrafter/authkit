@@ -29,14 +29,15 @@
   end
 
   def login(user)
-    user.track_sign_in(request.remote_ip) if allow_tracking?
-    user.set_token(:remember_token)
+    @current_user = user
+    current_user.track_sign_in(request.remote_ip) if allow_tracking?
+    current_user.set_token(:remember_token)
     set_remember_cookie
     reset_session
-    session[:user_id] = user.id
-    session[:time_zone] = user.time_zone
+    session[:user_id] = current_user.id
+    session[:time_zone] = current_user.time_zone
     set_time_zone
-    @current_user = user
+    current_user
   end
 
   def logout
