@@ -4,6 +4,7 @@ describe UsersController do
   render_views
 
   let(:user_params) { { unconfirmed_email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
+  let(:invalid_params) { user_params.merge(unconfirmed_email: '555-1212') }
   let(:user) { User.new(user_params) }
   let(:logged_in_session) { { user_id: "1" } }
 
@@ -20,23 +21,146 @@ describe UsersController do
   end
 
   describe "POST 'create'" do
-    it "returns http success" do
-      post :create, {user: user_params}
-      response.should be_redirect
+    describe "with valid params" do
+      describe "from html" do
+        it "creates a new user" do
+          expect {
+            post :create, {user: user_params}, {}
+          }.to change(User, :count).by(1)
+        end
+
+        it "signs the user in" do
+          post :create, {user: user_params}, {}
+          controller.send(:current_user).should == assigns(:user)
+        end
+
+        it "redirects to the root" do
+          post :create, {user: user_params}
+          response.should be_redirect
+        end
+      end
+
+      describe "from json" do
+        it "creates the user" do
+          expect {
+            post :create, {user: user_params, format: 'json'}, {}
+          }.to change(User, :count).by(1)
+        end
+
+        it "signs the user in" do
+          post :create, {user: user_params, format: 'json'}, {}
+          controller.send(:current_user).should == assigns(:user)
+        end
+
+        it "returns http success" do
+          post :create, {user: user_params, format: 'json'}
+          response.should be_success
+        end
+      end
+    end
+
+    describe "with invalid params" do
+      describe "from html" do
+        it "renders the new page" do
+          post :create, {user: invalid_params}, {}
+          response.should render_template("new")
+        end
+
+        it "does not create a user" do
+          expect {
+            post :create, {user: invalid_params}, {}
+          }.to_not change(User, :count)
+        end
+
+        it "sets the errors" do
+          post :create, {user: invalid_params}, {}
+          assigns(:user).should have(1).errors_on(:unconfirmed_email)
+        end
+      end
+
+      describe "from json" do
+        it "returns a 422" do
+          post :create, {user: invalid_params, format: 'json'}, {}
+          response.code.should == '422'
+        end
+
+        it "includes the errors in the json" do
+          post :create, {user: invalid_params, format: 'json'}, {}
+          assigns(:user).should have(1).errors_on(:unconfirmed_email)
+          response.body.should =~ /is not a valid email address/i
+        end
+      end
     end
   end
 
   describe "GET 'edit'" do
-    it "returns http success" do
+    it "redirects if there is no current user" do
+      get :edit
+      response.should be_redirect
+    end
+
+    it "edits the current user" do
       get :edit, {}, logged_in_session
       response.should be_success
     end
   end
 
   describe "PUT 'update'" do
-    it "returns http success" do
-      put 'update', {user: user_params}, logged_in_session
-      response.should be_redirect
+    it "redirects if there is no current user"
+
+    describe "with valid params" do
+      describe "from html" do
+        it "updates the user" do
+          expect {
+            put :update, {user: user_params.merge(first_name: "Alvarez")}, logged_in_session
+          }.to change(user, :first_name)
+        end
+
+        it "redirects the user" do
+          put :update, {user: user_params}, logged_in_session
+          response.should be_redirect
+        end
+      end
+
+      describe "from json" do
+        it "updates the user" do
+          expect {
+            put :update, {user: user_params.merge(first_name: "Alvarez"), format: 'json'}, logged_in_session
+          }.to change(user, :first_name)
+        end
+      end
+    end
+
+    describe "with invalid params" do
+      describe "from html" do
+        before(:each) do
+          put :update, {user: invalid_params}, logged_in_session
+        end
+
+        it "renders the edit page" do
+          response.should render_template('edit')
+          response.should be_success
+        end
+
+        it "sets the errors" do
+          user.should have(1).errors_on(:unconfirmed_email)
+        end
+      end
+
+      describe "from json" do
+        before(:each) do
+          put :update, {user: invalid_params, format: 'json'}, logged_in_session
+        end
+
+        it "returns a 422" do
+          response.code.should == '422'
+        end
+
+        it "includes the errors in the json" do
+          user.should have(1).errors_on(:unconfirmed_email)
+          response.body.should =~ /is not a valid email address/i
+        end
+      end
     end
   end
 end

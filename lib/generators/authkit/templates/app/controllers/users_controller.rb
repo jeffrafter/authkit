@@ -9,15 +9,16 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
+      login(@user)
       respond_to do |format|
-        format.json { render head: :no_content }
-        format.html {
-          login(@user)
-          redirect_to root_path
-        }
+        format.json { head :no_content }
+        format.html { redirect_to root_path }
       end
     else
-      render 'new'
+      respond_to do |format|
+        format.json { render json: { status: 'error', errors: @user.errors }.to_json, status: 422 }
+        format.html { render :new }
+      end
     end
   end
 
@@ -26,15 +27,18 @@ class UsersController < ApplicationController
   end
 
   def update
-    if current_user.update_attributes(user_params)
+    @user = current_user
+
+    if @user.update_attributes(user_params)
       respond_to do |format|
-        format.json { render head: :no_content }
-        format.html {
-          redirect_to current_user
-        }
+        format.json { head :no_content }
+        format.html { redirect_to @user }
       end
     else
-      render 'edit'
+      respond_to do |format|
+        format.json { render json: { status: 'error', errors: @user.errors }.to_json, status: 422 }
+        format.html { render :edit }
+      end
     end
   end
 
