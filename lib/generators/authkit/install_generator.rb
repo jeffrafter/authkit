@@ -22,8 +22,8 @@ module Authkit
       empty_directory "app/views"
       empty_directory "app/views/users"
       empty_directory "app/views/sessions"
-      empty_directory "app/views/change_password"
-      empty_directory "app/views/forgot_password"
+      empty_directory "app/views/password_reset"
+      empty_directory "app/views/password_change"
       empty_directory "spec"
       empty_directory "spec/models"
       empty_directory "spec/controllers"
@@ -33,15 +33,15 @@ module Authkit
       template "app/models/user.rb", "app/models/user.rb"
       template "app/controllers/users_controller.rb", "app/controllers/users_controller.rb"
       template "app/controllers/sessions_controller.rb", "app/controllers/sessions_controller.rb"
-      template "app/controllers/forgot_password_controller.rb", "app/controllers/forgot_password_controller.rb"
-      template "app/controllers/change_password_controller.rb", "app/controllers/change_password_controller.rb"
+      template "app/controllers/password_reset_controller.rb", "app/controllers/password_reset_controller.rb"
+      template "app/controllers/password_change_controller.rb", "app/controllers/password_change_controller.rb"
 
       template "spec/models/user_spec.rb", "spec/models/user_spec.rb"
       template "spec/controllers/application_controller_spec.rb", "spec/controllers/application_controller_spec.rb"
       template "spec/controllers/users_controller_spec.rb", "spec/controllers/users_controller_spec.rb"
       template "spec/controllers/sessions_controller_spec.rb", "spec/controllers/sessions_controller_spec.rb"
-      template "spec/controllers/forgot_password_controller_spec.rb", "spec/controllers/forgot_password_controller_spec.rb"
-      template "spec/controllers/change_password_controller_spec.rb", "spec/controllers/change_password_controller_spec.rb"
+      template "spec/controllers/password_reset_controller_spec.rb", "spec/controllers/password_reset_controller_spec.rb"
+      template "spec/controllers/password_change_controller_spec.rb", "spec/controllers/password_change_controller_spec.rb"
 
       template "lib/email_format_validator.rb", "lib/email_format_validator.rb"
 
@@ -49,8 +49,8 @@ module Authkit
       copy_file "app/views/users/new.html.erb", "app/views/users/new.html.erb"
       copy_file "app/views/users/edit.html.erb", "app/views/users/edit.html.erb"
       copy_file "app/views/sessions/new.html.erb", "app/views/sessions/new.html.erb"
-      copy_file "app/views/forgot_password/show.html.erb", "app/views/forgot_password/show.html.erb"
-      copy_file "app/views/change_password/show.html.erb", "app/views/change_password/show.html.erb"
+      copy_file "app/views/password_reset/show.html.erb", "app/views/password_reset/show.html.erb"
+      copy_file "app/views/password_change/show.html.erb", "app/views/password_change/show.html.erb"
 
       # We don't want to override this file and may have a protected section
       insert_at_end_of_class "app/controllers/application_controller.rb", "app/controllers/application_controller.rb"
@@ -59,10 +59,10 @@ module Authkit
       route "root 'welcome#index'"
 
       # Setup the routes
-      route "get  '/password/forgot', to: 'forgot_password#show', as: :forgot_password"
-      route "post '/password/forgot', to: 'forgot_password#create'"
-      route "get  '/password/change/:token', to: 'change_password#show', as: :change_password"
-      route "post '/password/change/:token', to: 'change_password#create'"
+      route "post '/password/reset', to: 'password_reset#create'"
+      route "get  '/password/reset', to: 'password_reset#show', as: :password_reset"
+      route "post '/password/change/:token', to: 'password_change#create'"
+      route "get  '/password/change/:token', to: 'password_change#show', as: :password_change"
 
       route "get  '/signup', to: 'users#new', as: :signup"
       route "get  '/logout', to: 'sessions#destroy', as: :logout"

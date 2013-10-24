@@ -1,6 +1,6 @@
 <h1>Reset your password</h1>
 
-<%= form_tag(forgot_password_path, method: "post") do %>
+<%= form_tag(password_reset_path, method: "post") do %>
   <div class="field">
     <%= label_tag "email", "Email or username" %>
     <%= text_field_tag "email" %>

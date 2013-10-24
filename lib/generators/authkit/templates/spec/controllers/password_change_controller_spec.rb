@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe ForgotPasswordController do
+describe PasswordChangeController do
   render_views
 
   describe "GET 'show'" do
     it "returns http success" do
-      get 'show'
+      get 'show', token: 'testtoken'
       response.should be_success
     end
   end
