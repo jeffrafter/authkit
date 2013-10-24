@@ -106,7 +106,10 @@ describe UsersController do
   end
 
   describe "PUT 'update'" do
-    it "redirects if there is no current user"
+    it "redirects if there is no current user" do
+      put :update, {user: user_params.merge(first_name: "Alvarez")}
+      response.should be_redirect
+    end
 
     describe "with valid params" do
       describe "from html" do
