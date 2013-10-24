@@ -93,8 +93,7 @@ class User < ActiveRecord::Base
   end
 
   def reset_password
-    set_token(:reset_password_token)
-    send_reset_password_instructions
+    send_reset_password_instructions if set_token(:reset_password_token)
   end
 
   def change_password(password, password_confirmation)
@@ -113,7 +112,7 @@ class User < ActiveRecord::Base
   #
   # TODO, check if the email address is confirmed before sending
   def send_reset_password_instructions
-
+    true
   end
 
   def password_set?

@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_filter :login_required, only: [:edit, :update]
+  before_filter :require_login, only: [:edit, :update]
 
   # Signup
   def new

@@ -29,7 +29,7 @@ describe SessionsController do
       response.should be_redirect
     end
 
-    it "looks finds the user by the email or user name" do
+    it "finds the user by the email or user name" do
       User.should_receive(:find_by_username_or_email).with("test@example.com").and_return(user)
       post :create, {email: "test@example.com", password: "example"}
     end

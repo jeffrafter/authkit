@@ -1,9 +1,16 @@
-<h1>Reset your password</h1>
+<h1>Please enter a new password</h1>
 
-<%= form_tag(password_reset_path, method: "post") do %>
+<%= form_tag(password_change_path, method: "post") do %>
+  <%= hidden_field_tag :token, params[:token] %>
+
   <div class="field">
-    <%= label_tag "email", "Email or username" %>
-    <%= text_field_tag "email" %>
+    <%= label_tag "password" %>
+    <%= password_field_tag "password" %>
   </div>
-  <%= submit_tag "Reset" %>
+  <div class="field">
+    <%= label_tag "password_confirmation" %>
+    <%= password_field_tag "password_confirmation" %>
+  </div>
+
+  <%= submit_tag "Change" %>
 <% end %>

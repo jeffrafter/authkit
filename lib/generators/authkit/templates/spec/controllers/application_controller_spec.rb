@@ -11,13 +11,18 @@ describe ApplicationController do
   end
 
   controller do
-    before_filter :login_required, only: [:index]
+    before_filter :require_login, only: [:index]
+    before_filter :require_token, only: [:show]
 
     def new
       head :ok
     end
 
     def index
+      head :ok
+    end
+
+    def show
       head :ok
     end
   end
@@ -102,6 +107,27 @@ describe ApplicationController do
         get :index, {format: :json}
         response.code.should == "403"
       end
+    end
+  end
+
+  describe "tokens" do
+    it "requires a user token" do
+      User.should_receive(:user_from_token).with('testtoken').and_return(user)
+      get 'show', {id: '1',  token: 'testtoken'}
+    end
+
+    it "returns an error if there is no user token" do
+      User.should_receive(:user_from_token).with('testtoken').and_return(nil)
+      controller.should_receive(:deny_user)
+      get 'show', {id: '1',  token: 'testtoken'}
+    end
+
+    it "verifies the token" do
+      request.env["action_dispatch.secret_token"] = "SECRET"
+      verifier = ActiveSupport::MessageVerifier.new(request.env["action_dispatch.secret_token".freeze])
+      token = verifier.generate("TOKEN")
+      User.should_receive(:user_from_token).with(token).and_return(user)
+      get 'show', {id: '1', token: token}
     end
   end
 

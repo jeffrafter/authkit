@@ -24,8 +24,12 @@
     !!current_user
   end
 
-  def login_required
+  def require_login
     deny_user(nil, login_path) unless logged_in?
+  end
+
+  def require_token
+    deny_user("Invalid token", root_path) unless @user = User.user_from_token(params[:token])
   end
 
   def login(user)
