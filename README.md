@@ -2,6 +2,45 @@
 
 A gem for installing auth into you app.
 
+## Why?
+
+There are lots of great authentication gems out there; remember the days of restful_auth? clearance? devise?
+All of these seek to solve the problem of authentication in your application. But they all share
+one philosophy: that you shouldn't need to think about authentication to build your app. For me, I find I
+spend way more time trying to figure out how to customize the tools for the few cases when my
+application needs to do something different.
+
+Authkit takes the opposite stance: auth belongs in your app. It is important and it is specific to your
+app. It only includes generators and installs itself with some specs. You customize it. Everything
+is right where you would expect it to be. Auth is part of your app. It is specific to your app.
+
+## Features
+
+Authkit supports Ruby down to version 1.9 but targets 2.0. It is built for Rails 4. It is possible
+that it could support Rails 3.x (it would need strong parameters). Some of the features include:
+
+  * Signup (username or email)
+  * Login/Logout
+  * Database backed unique constraints
+  * Email confirmation (you must connect a mailer, see below)
+  * Password reset (you must connect a mailer, see below)
+  * One time password / Two factor authentication
+  * Token support
+  * Remember me
+  * Account page
+  * Time zones
+  * Do not track (DNT) support
+  * Sign-in Tracking
+  * Analytics (coming soon)
+  * Lockout for failed attempts (coming soon)
+
+Some possible features include:
+
+  * Master lockout/reset
+  * Visit tracking and anonymous users
+  * Third party accounts
+  * Installer options (test framework, security bulletins, modules)
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -84,8 +123,28 @@ And will add some gems to your Gemfile:
     gemfile  rspec-rails, :test, :development
     gemfile  shoulda-matchers, :test, :development
 
-Once you have this installed you can remove the gem. You'll also need to connect your mailers
-for sending password reset instructions and email confirmations. (See the TODO in +user.rb+)
+Once you have this installed you can remove the gem, however you may want to
+keep the gem installed in development as you will be able to update it
+and check for security bulletins.
+
+You'll also need to connect your mailers for sending password reset instructions
+and email confirmations. (See the TODO in +user.rb+)
+
+## Testing
+
+The files generated using the installer include specs. To test these you should be
+able to:
+
+    $ bundle install
+
+Then run the default task:
+
+    $ rake
+
+This will run the specs, which by default will generate a new Rails application,
+run the installer, and execute the specs in the context of that temporary
+application.
+
 
 ## Contributing
 
