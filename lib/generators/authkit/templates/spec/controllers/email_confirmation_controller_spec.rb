@@ -18,7 +18,7 @@ describe EmailConfirmationController do
     describe "with a valid token" do
       it "confirms the user email" do
         User.should_receive(:user_from_token).with(token).and_return(user)
-        user.should_receive(:confirm_email)
+        user.should_receive(:email_confirmed)
         get 'show', token: token
       end
 

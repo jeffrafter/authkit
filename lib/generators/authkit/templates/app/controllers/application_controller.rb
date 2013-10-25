@@ -3,6 +3,14 @@
 
   helper_method :logged_in?, :current_user
 
+  # It is very unlikely that this exception will be created under normal
+  # circumstances. Unique validations are handled in Rails, but they are
+  # also enforced at the database level to guarantee data integrity. In
+  # certain cases (double-clicking a save link, multiple distributed servers)
+  # it is possible to get past the Rails validation in which case the
+  # database throws an exception.
+  rescue_from ActiveRecord::RecordNotUnique, with: :record_not_unique
+
   protected
 
   def current_user
@@ -79,4 +87,8 @@
     end
 
     false
+  end
+
+  def record_not_unique
+    respond_with(nil, location: root_path, status: 422)
   end

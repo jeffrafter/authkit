@@ -21,6 +21,7 @@ class User < ActiveRecord::Base
 
   # Whenever the password is set, validate (not only on create)
   validates :password, presence: true, confirmation: true, length: {minimum: 6}, if: :password_set?
+  validates :email, uniqueness: true, allow_blank: true, email_format: true
   validates :unconfirmed_email, presence: true, uniqueness: true, email_format: true
   validates :username, presence: true, uniqueness: {case_sensitive: false}
 

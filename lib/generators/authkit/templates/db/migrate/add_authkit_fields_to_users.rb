@@ -52,6 +52,7 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
 
     # Make sure the validations are enforced
     add_index :users, :email, :unique => true
+    add_index :users, :unconfirmed_email, :unique => true
     add_index :users, :username, :unique => true
     add_index :users, :reset_password_token, :unique => true
     add_index :users, :remember_token, :unique => true

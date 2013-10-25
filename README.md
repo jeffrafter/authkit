@@ -4,15 +4,15 @@ A gem for installing auth into you app.
 
 ## Why?
 
-There are lots of great authentication gems out there; remember the days of restful_auth? clearance? devise?
-All of these seek to solve the problem of authentication in your application. But they all share
-one philosophy: that you shouldn't need to think about authentication to build your app. For me, I find I
+There are lots of great authentication gems out there; devise? clearance? restful_auth?
+All of these seek to solve the problem of adding authentication to your application but they all share
+one philosophy: you shouldn't need to think about authentication to build your app. For me, I find I
 spend way more time trying to figure out how to customize the tools for the few cases when my
 application needs to do something different.
 
 Authkit takes the opposite stance: auth belongs in your app. It is important and it is specific to your
 app. It only includes generators and installs itself with some specs. You customize it. Everything
-is right where you would expect it to be. Auth is part of your app. It is specific to your app.
+is right where you would expect it to be.
 
 ## Features
 
