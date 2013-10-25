@@ -41,6 +41,9 @@ Some possible features include:
   * Third party accounts
   * Installer options (test framework, security bulletins, modules)
 
+If there is a feature you don't want to use, you just have to go and delete the generated code.
+It is your application to customize.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -145,6 +148,10 @@ This will run the specs, which by default will generate a new Rails application,
 run the installer, and execute the specs in the context of that temporary
 application.
 
+The specs that are generated utilize a fair amount of mocking and stubbing in
+an attempt to keep them fast. However, they use vanilla +rspec-rails+, meaning
+they are not using FactoryGirl, or mocha. The one caveat is shoulda-matchers
+which are required.
 
 ## Contributing
 

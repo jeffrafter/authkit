@@ -32,7 +32,10 @@ class User < ActiveRecord::Base
     nil
   end
 
-  # TODO, save and catch unique index exception
+  # The tokens created by this method have unique indexes but they are digests of the
+  # id which is unique. Because of this we shouldn't see a conflict. If we do, however
+  # we want the ActiveRecord::StatementInvalid or ActiveRecord::RecordNotUnique exeception
+  # to bubble up.
   def set_token(field)
     return unless self.persisted?
     verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_token)
