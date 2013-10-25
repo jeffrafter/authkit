@@ -87,10 +87,6 @@ module Authkit
         gem "rspec-rails"
         gem "shoulda-matchers"
       end
-
-      gem_group :test do
-        gem "factory_girl_rails"
-      end
     end
 
     def self.next_migration_number(dirname)
