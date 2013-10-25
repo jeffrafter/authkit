@@ -25,10 +25,14 @@ class UsersController < ApplicationController
 
   def edit
     @user = current_user
+    # Set the unconfirmed email for displaying on the form
+    @user.unconfirmed_email ||= @user.email
   end
 
   def update
     @user = current_user
+    # Set the unconfirmed email for displaying on the form
+    @user.unconfirmed_email ||= @user.email
 
     if email_params[:unconfirmed_email].present? &&
        email_params[:unconfirmed_email] != @user.email &&

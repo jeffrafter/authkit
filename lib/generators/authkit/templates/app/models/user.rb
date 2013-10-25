@@ -118,11 +118,13 @@ class User < ActiveRecord::Base
 
   def send_reset_password_instructions
     # TODO, check if the email address is confirmed and send
+    # NOTE, when sending emails, you may want to delegate to a queue instead of sending inline
     true
   end
 
   def send_email_confirmation_instructions
     # TODO, check if the email address is unconfirmed and send
+    # NOTE, when sending emails, you may want to delegate to a queue instead of sending inline
     true
   end
 
