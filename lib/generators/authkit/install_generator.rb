@@ -35,6 +35,7 @@ module Authkit
       template "app/controllers/sessions_controller.rb", "app/controllers/sessions_controller.rb"
       template "app/controllers/password_reset_controller.rb", "app/controllers/password_reset_controller.rb"
       template "app/controllers/password_change_controller.rb", "app/controllers/password_change_controller.rb"
+      template "app/controllers/email_confirmation_controller.rb", "app/controllers/email_confirmation_controller.rb"
 
       template "spec/models/user_spec.rb", "spec/models/user_spec.rb"
       template "spec/controllers/application_controller_spec.rb", "spec/controllers/application_controller_spec.rb"
@@ -42,6 +43,7 @@ module Authkit
       template "spec/controllers/sessions_controller_spec.rb", "spec/controllers/sessions_controller_spec.rb"
       template "spec/controllers/password_reset_controller_spec.rb", "spec/controllers/password_reset_controller_spec.rb"
       template "spec/controllers/password_change_controller_spec.rb", "spec/controllers/password_change_controller_spec.rb"
+      template "spec/controllers/email_confirmation_controller_spec.rb", "spec/controllers/email_confirmation_controller_spec.rb"
 
       template "lib/email_format_validator.rb", "lib/email_format_validator.rb"
 
@@ -59,6 +61,8 @@ module Authkit
       route "root 'welcome#index'"
 
       # Setup the routes
+      route "get  '/email/confirm/:token', to: 'email_confirmation#show', as: :confirm"
+
       route "post '/password/reset', to: 'password_reset#create'"
       route "get  '/password/reset', to: 'password_reset#show', as: :password_reset"
       route "post '/password/change/:token', to: 'password_change#create'"

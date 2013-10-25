@@ -87,8 +87,16 @@ class User < ActiveRecord::Base
   end
 
   def confirm_email
+    send_email_confirmation_instructions if set_token(:confirm_token)
+  end
+
+  def email_confirmed
     self.email = self.unconfirmed_email
     self.unconfirmed_email = nil
+    if valid?
+      self.confirm_token = nil
+      self.confirm_token_created_at = nil
+    end
     self.save
   end
 
@@ -108,10 +116,13 @@ class User < ActiveRecord::Base
 
   protected
 
-  # You need to implement this method to send a mail to the user
-  #
-  # TODO, check if the email address is confirmed before sending
   def send_reset_password_instructions
+    # TODO, check if the email address is confirmed and send
+    true
+  end
+
+  def send_email_confirmation_instructions
+    # TODO, check if the email address is unconfirmed and send
     true
   end
 

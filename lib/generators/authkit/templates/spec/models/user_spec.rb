@@ -170,9 +170,32 @@ describe User do
       user
     end
 
-    it "confirms emails" do
+    it "confirms then email" do
+      user = User.new
+      user.should_receive(:persisted?).and_return(true)
+      user.should_receive(:id).and_return(1)
+      user.should_receive(:save).and_return(true)
+      Time.stub(:now).and_return(time = Time.now)
+
       user.confirm_email
+      user.confirm_token_created_at.should == time
+      user.confirm_token.should_not be_blank
+    end
+
+    it "sends reset password instructions" do
+      user = User.new
+      user.should_receive(:persisted?).and_return(true)
+      user.should_receive(:id).and_return(1)
+      user.should_receive(:save).and_return(true)
+      user.should_receive(:send_email_confirmation_instructions)
+      user.confirm_email
+    end
+
+    it "handles confirmed emails" do
+      user.email_confirmed
       user.unconfirmed_email.should be_nil
+      user.confirm_token.should be_nil
+      user.confirm_token_created_at.should be_nil
       user.email.should == "boss@hogg.com"
     end
   end

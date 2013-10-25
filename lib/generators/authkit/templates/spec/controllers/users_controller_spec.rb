@@ -4,7 +4,7 @@ describe UsersController do
   render_views
 
   let(:user_params) { { unconfirmed_email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
-  let(:invalid_params) { user_params.merge(unconfirmed_email: '555-1212') }
+  let(:invalid_params) { user_params.merge(password: 'newpassword', password_confirmation: 'wrongpassword') }
   let(:user) { User.new(user_params) }
   let(:logged_in_session) { { user_id: "1" } }
 
@@ -27,6 +27,11 @@ describe UsersController do
           expect {
             post :create, {user: user_params}, {}
           }.to change(User, :count).by(1)
+        end
+
+        it "confirms the email" do
+          User.any_instance.should_receive(:confirm_email)
+          post :create, {user: user_params}, {}
         end
 
         it "signs the user in" do
@@ -74,7 +79,7 @@ describe UsersController do
 
         it "sets the errors" do
           post :create, {user: invalid_params}, {}
-          assigns(:user).should have(1).errors_on(:unconfirmed_email)
+          assigns(:user).should have(2).errors_on(:password_confirmation)
         end
       end
 
@@ -86,8 +91,8 @@ describe UsersController do
 
         it "includes the errors in the json" do
           post :create, {user: invalid_params, format: 'json'}, {}
-          assigns(:user).should have(1).errors_on(:unconfirmed_email)
-          response.body.should =~ /is not a valid email address/i
+          assigns(:user).should have(2).errors_on(:password_confirmation)
+          response.body.should =~ /doesn't match Password/i
         end
       end
     end
@@ -112,6 +117,27 @@ describe UsersController do
     end
 
     describe "with valid params" do
+      describe "when changing the email" do
+        it "doesn't confirm the email if unchanged" do
+          user.email = user.unconfirmed_email
+          user.unconfirmed_email = nil
+          user.should_not_receive(:confirm_email)
+          put :update, {user: user_params.merge(email: "test@example.com")}, logged_in_session
+        end
+
+        it "doesn't reconfirm if the unconfirmed email is already set" do
+          user.should_not_receive(:confirm_email)
+          put :update, {user: user_params.merge(email: "test@example.com")}, logged_in_session
+        end
+
+        it "confirms the unconfirmed email" do
+          user.unconfirmed_email = nil
+          user.email = "old@example.com"
+          user.should_receive(:confirm_email).and_return(true)
+          put :update, {user: user_params.merge(email: "test@example.com")}, logged_in_session
+        end
+      end
+
       describe "from html" do
         it "updates the user" do
           expect {
@@ -146,7 +172,7 @@ describe UsersController do
         end
 
         it "sets the errors" do
-          user.should have(1).errors_on(:unconfirmed_email)
+          user.should have(2).errors_on(:password_confirmation)
         end
       end
 
@@ -160,8 +186,8 @@ describe UsersController do
         end
 
         it "includes the errors in the json" do
-          user.should have(1).errors_on(:unconfirmed_email)
-          response.body.should =~ /is not a valid email address/i
+          user.should have(2).errors_on(:password_confirmation)
+          response.body.should =~ /doesn't match Password/i
         end
       end
     end
