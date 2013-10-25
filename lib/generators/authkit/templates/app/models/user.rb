@@ -86,6 +86,11 @@ class User < ActiveRecord::Base
     self.save
   end
 
+  # When checking the unconfirmed email use the email if empty for display
+  def unconfirmed_email
+    super || self.email
+  end
+
   def confirm_email
     send_email_confirmation_instructions if set_token(:confirm_token)
   end
@@ -123,7 +128,7 @@ class User < ActiveRecord::Base
   end
 
   def send_email_confirmation_instructions
-    # TODO, check if the email address is unconfirmed and send
+    # TODO, check if the email address is unconfirmed and not equal to the email and send
     # NOTE, when sending emails, you may want to delegate to a queue instead of sending inline
     true
   end

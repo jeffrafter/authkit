@@ -193,7 +193,7 @@ describe User do
 
     it "handles confirmed emails" do
       user.email_confirmed
-      user.unconfirmed_email.should be_nil
+      user.unconfirmed_email.should == user.email
       user.confirm_token.should be_nil
       user.confirm_token_created_at.should be_nil
       user.email.should == "boss@hogg.com"

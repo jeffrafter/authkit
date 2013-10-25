@@ -122,19 +122,18 @@ describe UsersController do
           user.email = user.unconfirmed_email
           user.unconfirmed_email = nil
           user.should_not_receive(:confirm_email)
-          put :update, {user: user_params.merge(email: "test@example.com")}, logged_in_session
+          put :update, {user: user_params.merge(unconfirmed_email: "test@example.com")}, logged_in_session
         end
 
         it "doesn't reconfirm if the unconfirmed email is already set" do
           user.should_not_receive(:confirm_email)
-          put :update, {user: user_params.merge(email: "test@example.com")}, logged_in_session
+          put :update, {user: user_params.merge(unconfirmed_email: "test@example.com")}, logged_in_session
         end
 
         it "confirms the unconfirmed email" do
-          user.unconfirmed_email = nil
           user.email = "old@example.com"
           user.should_receive(:confirm_email).and_return(true)
-          put :update, {user: user_params.merge(email: "test@example.com")}, logged_in_session
+          put :update, {user: user_params.merge(unconfirmed_email: "new@example.com")}, logged_in_session
         end
       end
 
