@@ -44,6 +44,8 @@ Some possible features include:
 If there is a feature you don't want to use, you just have to go and delete the generated code.
 It is your application to customize.
 
+More information is available in [FEATURES.md].
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -130,6 +132,10 @@ Once you have this installed you can remove the gem, however you may want to
 keep the gem installed in development as you will be able to update it
 and check for security bulletins.
 
+You'll need to migrate your database (check the migrations before you do):
+
+    rake db:migrate
+
 You'll also need to connect your mailers for sending password reset instructions
 and email confirmations. (See the TODO in +user.rb+)
 
@@ -148,7 +154,7 @@ This will run the specs, which by default will generate a new Rails application,
 run the installer, and execute the specs in the context of that temporary
 application.
 
-The specs that are generated utilize a fair amount of mocking and stubbing in
+The specs that are generated utilize a generous amount of mocking and stubbing in
 an attempt to keep them fast. However, they use vanilla +rspec-rails+, meaning
 they are not using FactoryGirl, or mocha. The one caveat is shoulda-matchers
 which are required.
