@@ -3,7 +3,7 @@ require 'spec_helper'
 describe SessionsController do
   render_views
 
-  let(:user_params) { { unconfirmed_email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
+  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
   let(:user) { User.new(user_params) }
   let(:logged_in_session) { { user_id: "1" } }
 

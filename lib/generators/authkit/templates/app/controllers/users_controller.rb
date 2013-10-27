@@ -9,9 +9,9 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_create_params)
     if @user.save
-      @user.confirm_email
+      @user.send_confirmation
       login(@user)
       respond_to do |format|
         format.json { head :no_content }
@@ -32,14 +32,14 @@ class UsersController < ApplicationController
   def update
     @user = current_user
 
-    orig_unconfirmed_email = @user.unconfirmed_email
+    orig_confirmation_email = @user.confirmation_email
 
-    if @user.update_attributes(user_params)
+    if @user.update_attributes(user_update_params)
       # Send a new email confirmation if the user updated their email address
-      if @user.unconfirmed_email.present? &&
-         @user.unconfirmed_email != @user.email &&
-         @user.unconfirmed_email != orig_unconfirmed_email
-         @user.confirm_email
+      if @user.confirmation_email.present? &&
+         @user.confirmation_email != @user.email &&
+         @user.confirmation_email != orig_confirmation_email
+         @user.send_confirmation
       end
       respond_to do |format|
         format.json { head :no_content }
@@ -55,9 +55,27 @@ class UsersController < ApplicationController
 
   protected
 
-  def user_params
+  # It would be nice to find a strategy to merge these. The only difference is that
+  # when signing up you are setting the email, and when changing your settings you
+  # are setting the confirmation email.
+
+  def user_create_params
     params.require(:user).permit(
-      :unconfirmed_email,
+      :email,
+      :username,
+      :password,
+      :password_confirmation,
+      :first_name,
+      :last_name,
+      :bio,
+      :website,
+      :phone_number,
+      :time_zone)
+  end
+
+  def user_update_params
+    params.require(:user).permit(
+      :confirmation_email,
       :username,
       :password,
       :password_confirmation,

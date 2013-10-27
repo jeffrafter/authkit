@@ -3,7 +3,7 @@ require 'spec_helper'
 describe UsersController do
   render_views
 
-  let(:user_params) { { unconfirmed_email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
+  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
   let(:invalid_params) { user_params.merge(password: 'newpassword', password_confirmation: 'wrongpassword') }
   let(:user) { User.new(user_params) }
   let(:logged_in_session) { { user_id: "1" } }
@@ -30,7 +30,7 @@ describe UsersController do
         end
 
         it "confirms the email" do
-          User.any_instance.should_receive(:confirm_email)
+          User.any_instance.should_receive(:send_confirmation)
           post :create, {user: user_params}, {}
         end
 
@@ -118,22 +118,22 @@ describe UsersController do
 
     describe "with valid params" do
       describe "when changing the email" do
-        it "doesn't confirm the email if unchanged" do
-          user.email = user.unconfirmed_email
-          user.unconfirmed_email = nil
-          user.should_not_receive(:confirm_email)
-          put :update, {user: user_params.merge(unconfirmed_email: "test@example.com")}, logged_in_session
+        it "doesn't send the confirmation the email if unchanged" do
+          user.email = user.confirmation_email
+          user.confirmation_email = nil
+          user.should_not_receive(:send_confirmation)
+          put :update, {user: user_params.merge(confirmation_email: "test@example.com")}, logged_in_session
         end
 
-        it "doesn't reconfirm if the unconfirmed email is already set" do
-          user.should_not_receive(:confirm_email)
-          put :update, {user: user_params.merge(unconfirmed_email: "test@example.com")}, logged_in_session
+        it "doesn't reconfirm if the confirmation email is unchanged" do
+          user.should_not_receive(:send_confirmation)
+          put :update, {user: user_params.merge(confirmation_email: "test@example.com")}, logged_in_session
         end
 
-        it "confirms the unconfirmed email" do
+        it "confirms the confirmation email" do
           user.email = "old@example.com"
-          user.should_receive(:confirm_email).and_return(true)
-          put :update, {user: user_params.merge(unconfirmed_email: "new@example.com")}, logged_in_session
+          user.should_receive(:send_confirmation).and_return(true)
+          put :update, {user: user_params.merge(confirmation_email: "new@example.com")}, logged_in_session
         end
       end
 

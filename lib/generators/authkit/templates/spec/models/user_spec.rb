@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe User do
-  let(:user_params) { { unconfirmed_email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
+  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
 
   it "has secure password support" do
     User.new.should respond_to(:authenticate)
@@ -35,12 +35,20 @@ describe User do
         User.create!(user_params)
       end
       it { should validate_uniqueness_of(:username) }
-      it { should validate_uniqueness_of(:unconfirmed_email) }
+      it { should validate_uniqueness_of(:email) }
+      it "validates the uniqueness of the the confirmation email" do
+        user = User.new(user_params.merge(email: "old@example.com", username: "old"))
+        user.confirmation_email = "new@example.com"
+        user.should be_valid
+        user.confirmation_email = "test@example.com"
+        user.should_not be_valid
+      end
     end
+    it { should validate_presence_of(:confirmation_email) }
     it { should validate_presence_of(:username) }
-    it { should validate_presence_of(:unconfirmed_email) }
     it { should validate_presence_of(:password) }
     it { should validate_confirmation_of(:password) }
+
   end
 
   describe "tokens" do
@@ -70,7 +78,7 @@ describe User do
       end
 
       it "finds a user from the confirm token" do
-        User.user_from_confirm_token("TOKEN").should == "USER"
+        User.user_from_confirmation_token("TOKEN").should == "USER"
       end
 
       it "finds a user from the unlock token" do
@@ -163,40 +171,59 @@ describe User do
   end
 
   describe "emails" do
-    let(:user) do
-      user = User.new
-      user.should_receive(:save).and_return(true)
-      user.unconfirmed_email = "boss@hogg.com"
-      user
+    let(:user) { User.new(user_params) }
+
+    describe "with valid params" do
+      it "confirms the email" do
+        user = User.new
+        user.should_receive(:persisted?).and_return(true)
+        user.should_receive(:id).and_return(1)
+        user.should_receive(:save).and_return(true)
+        Time.stub(:now).and_return(time = Time.now)
+
+        user.send_confirmation
+        user.confirmation_token_created_at.should == time
+        user.confirmation_token.should_not be_blank
+      end
+
+      it "sends confirmation email instructions" do
+        user = User.new
+        user.should_receive(:persisted?).and_return(true)
+        user.should_receive(:id).and_return(1)
+        user.should_receive(:save).and_return(true)
+        user.send_confirmation
+      end
+
+      it "handles confirmed emails" do
+        user.should_receive(:save).and_return(true)
+        user.confirmation_email = "new@example.com"
+        user.confirmation_token = "TOKEN"
+        user.email_confirmed.should == true
+        user.confirmation_email.should == user.email
+        user.confirmation_token.should be_nil
+        user.confirmation_token_created_at.should be_nil
+        user.email.should == "new@example.com"
+      end
     end
 
-    it "confirms then email" do
-      user = User.new
-      user.should_receive(:persisted?).and_return(true)
-      user.should_receive(:id).and_return(1)
-      user.should_receive(:save).and_return(true)
-      Time.stub(:now).and_return(time = Time.now)
-
-      user.confirm_email
-      user.confirm_token_created_at.should == time
-      user.confirm_token.should_not be_blank
+    it "does not confirm if there is no confirmation token" do
+      user.confirmation_email = "new@example.com"
+      user.confirmation_token = nil
+      user.email_confirmed.should == false
     end
 
-    it "sends reset password instructions" do
-      user = User.new
-      user.should_receive(:persisted?).and_return(true)
-      user.should_receive(:id).and_return(1)
-      user.should_receive(:save).and_return(true)
-      user.should_receive(:send_email_confirmation_instructions)
-      user.confirm_email
+    it "does not confirm if there is no confirmation email" do
+      user.confirmation_email = ""
+      user.confirmation_token = "TOKEN"
+      user.email_confirmed.should == false
     end
 
-    it "handles confirmed emails" do
-      user.email_confirmed
-      user.unconfirmed_email.should == user.email
-      user.confirm_token.should be_nil
-      user.confirm_token_created_at.should be_nil
-      user.email.should == "boss@hogg.com"
+    it "does not confirm emails if they are already used" do
+      User.create(user_params.merge(email: "new@example.com", username: "newuser"))
+      user.confirmation_email = "new@example.com"
+      user.confirmation_token = "TOKEN"
+      user.email_confirmed.should == false
+      user.should have(1).errors_on(:email)
     end
   end
 
@@ -225,7 +252,7 @@ describe User do
       user.should_receive(:save).and_return(true)
       Time.stub(:now).and_return(time = Time.now)
 
-      user.reset_password
+      user.send_reset_password
       user.reset_password_token_created_at.should == time
       user.reset_password_token.should_not be_blank
     end
@@ -235,8 +262,7 @@ describe User do
       user.should_receive(:persisted?).and_return(true)
       user.should_receive(:id).and_return(1)
       user.should_receive(:save).and_return(true)
-      user.should_receive(:send_reset_password_instructions)
-      user.reset_password
+      user.send_reset_password
     end
   end
 end

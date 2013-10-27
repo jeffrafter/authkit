@@ -40,9 +40,9 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
     add_column :users, :remember_token_created_at, :datetime
 
     # Confirmation
-    add_column :users, :unconfirmed_email, :string
-    add_column :users, :confirm_token, :string
-    add_column :users, :confirm_token_created_at, :string
+    add_column :users, :confirmation_email, :string
+    add_column :users, :confirmation_token, :string
+    add_column :users, :confirmation_token_created_at, :string
 
     # Lockout
     add_column :users, :failed_attempts, :integer, :default => 0
@@ -55,7 +55,7 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
     add_index :users, :username, :unique => true
     add_index :users, :reset_password_token, :unique => true
     add_index :users, :remember_token, :unique => true
-    add_index :users, :confirm_token, :unique => true
+    add_index :users, :confirmation_token, :unique => true
     add_index :users, :unlock_token, :unique => true
 
   end
@@ -96,9 +96,9 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
     drop_column :users, :remember_token_created_at
 
     # Confirmation
-    drop_column :users, :unconfirmed_email
-    drop_column :users, :confirm_token
-    drop_column :users, :confirm_token_created_at
+    drop_column :users, :confirmation_email
+    drop_column :users, :confirmation_token
+    drop_column :users, :confirmation_token_created_at
 
     # Lockout
     drop_column :users, :failed_attempts

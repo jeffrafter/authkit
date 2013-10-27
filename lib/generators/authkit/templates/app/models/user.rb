@@ -4,12 +4,14 @@ class User < ActiveRecord::Base
   has_secure_password
   has_one_time_password
 
-  # Uncomment if you are not using strong params:
+  # Uncomment if you are not using strong params (note, that email is only permitted on
+  # signup and confirmation_email is only permitted on update):
   #
-  # attr_accessible :unconfirmed_email,
+  # attr_accessible :username,
+  #  :email,
+  #  :confirmation_email,
   #  :password,
   #  :password_confirmation,
-  #  :username,
   #  :time_zone,
   #  :first_name,
   #  :last_name,
@@ -18,16 +20,16 @@ class User < ActiveRecord::Base
   #  :phone_number
 
   before_validation :downcase_email
-  before_validation :copy_email
+  before_validation :set_confirmation_email
 
   # Whenever the password is set, validate (not only on create)
   validates :password, presence: true, confirmation: true, length: {minimum: 6}, if: :password_set?
   validates :username, presence: true, uniqueness: {case_sensitive: false}
   validates :email, email_format: true, presence: true, uniqueness: true
-  validates :unconfirmed_email, email_format: true, presence: true
+  validates :confirmation_email, email_format: true, presence: true
 
-  # Unconfirmed emails only check for existing emails for uniqueness
-  validate  :unconfirmed_email_uniqueness, if: :unconfirmed_email_set?
+  # Confirm emails check for existing emails for uniqueness as a convenience
+  validate  :confirmation_email_uniqueness, if: :confirmation_email_set?
 
   def self.user_from_token(token)
     verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_token)
@@ -67,7 +69,7 @@ class User < ActiveRecord::Base
     user_from_token(token)
   end
 
-  def self.user_from_confirm_token(token)
+  def self.user_from_confirmation_token(token)
     user_from_token(token)
   end
 
@@ -94,31 +96,33 @@ class User < ActiveRecord::Base
     self.save
   end
 
-  # When checking the unconfirmed email use the email if empty for display
-  def unconfirmed_email
-    super || self.email
+  def send_reset_password
+    return false unless set_token(:reset_password_token)
+
+    # TODO: insert your mailer logic here
+    true
   end
 
-  def confirm_email
-    send_email_confirmation_instructions if set_token(:confirm_token)
+  def send_confirmation
+    return false unless set_token(:confirmation_token)
+
+    # TODO: insert your mailer logic here
+    true
   end
 
   def email_confirmed
-    self.email = self.unconfirmed_email
-    self.unconfirmed_email = nil
+    return false if self.confirmation_token.blank? || self.confirmation_email.blank?
+
+    self.email = self.confirmation_email
 
     # Don't nil out the token unless the changes are valid as it may be
     # needed again (when re-rendering the form, for instance)
     if valid?
-      self.confirm_token = nil
-      self.confirm_token_created_at = nil
+      self.confirmation_token = nil
+      self.confirmation_token_created_at = nil
     end
 
     self.save
-  end
-
-  def reset_password
-    send_reset_password_instructions if set_token(:reset_password_token)
   end
 
   def change_password(password, password_confirmation)
@@ -137,41 +141,30 @@ class User < ActiveRecord::Base
 
   protected
 
-  def send_reset_password_instructions
-    # TODO, check if the email address is confirmed and send
-    # NOTE, when sending emails, you may want to delegate to a queue instead of sending inline
-    true
-  end
-
-  def send_email_confirmation_instructions
-    # TODO, check if the email address is unconfirmed and not equal to the email and send
-    # NOTE, when sending emails, you may want to delegate to a queue instead of sending inline
-    true
+  def password_set?
+    self.password.present?
   end
 
   def downcase_email
     self.email = self.email.downcase if self.email
   end
 
-  def copy_email
-    self.unconfirmed_email = self.email if self.unconfirmed_email.blank?
+  def set_confirmation_email
+    self.confirmation_email = self.email if self.confirmation_email.blank?
   end
 
-  def password_set?
-    self.password.present?
-  end
-
-  def unconfirmed_email_set?
-    unconfirmed_email.present? && unconfirmed_email_changed? && unconfirmed_email != email
+  def confirmation_email_set?
+    confirmation_email.present? && confirmation_email_changed? && confirmation_email != email
   end
 
   # It is possible that a user will change their email, not confirm, and then
-  # sign up for the service. If they later go to confirm the change it will
-  # fail because the email will be used by the new signup. Though this is problematic
-  # it avoids the larger problem of users blocking new user signups by changing their
-  # email address to something they don't control. The database has a unique index on both
-  # email and unconfirmed email.
-  def unconfirmed_email_uniqueness
-    errors.add(:unconfirmed_email, :taken, value: email) if User.where('email = ?', unconfirmed_email).count > 0
+  # sign up for the service again using the same email. If they later go to confirm
+  # the email change on the first account it will fail because the email will be
+  # used by the new signup. Though this is problematic it avoids the larger problem of
+  # users blocking new user signups by changing their email address to something they
+  # don't control. This check is just for convenience and does not need to
+  # guarantee uniqueness.
+  def confirmation_email_uniqueness
+    errors.add(:confirmation_email, :taken, value: email) if User.where('email = ?', confirmation_email).count > 0
   end
 end

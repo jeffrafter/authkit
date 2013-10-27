@@ -3,7 +3,7 @@ require 'spec_helper'
 describe PasswordResetController do
   render_views
 
-  let(:user_params) { { unconfirmed_email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
+  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
   let(:user) { User.new(user_params) }
 
   describe "GET 'show'" do
@@ -42,12 +42,12 @@ describe PasswordResetController do
     end
 
     it "resets the password if it finds the user" do
-      user.should_receive(:reset_password).and_return(true)
+      user.should_receive(:send_reset_password).and_return(true)
       post :create, {email: "test@example.com"}
     end
 
     it "does not reset the password if it does not find a user" do
-      User.any_instance.should_not_receive(:reset_password)
+      User.any_instance.should_not_receive(:send_reset_password)
       post :create, {email: "unknown@example.com"}
     end
 
@@ -84,7 +84,4 @@ describe PasswordResetController do
       end
     end
   end
-
-
-
 end

@@ -6,7 +6,7 @@ class PasswordResetController < ApplicationController
     username_or_email = "#{params[:email]}".downcase
     user = User.find_by_username_or_email(username_or_email) if username_or_email.present?
 
-    if user && user.reset_password
+    if user && user.send_reset_password
       logout
 
       respond_to do |format|
