@@ -17,7 +17,8 @@ is right where you would expect it to be.
 ## Features
 
 Authkit supports Ruby down to version 1.9 but targets 2.0. It is built for Rails 4. It is possible
-that it could support Rails 3.x (it would need strong parameters). Some of the features include:
+that it could support Rails 3.x (currently it relies on strong parameters and the Rails 4
+message verifier and `secret_key_base`). Some of the features include:
 
   * Signup (username or email)
   * Login/Logout

@@ -32,7 +32,7 @@ class User < ActiveRecord::Base
   validate  :confirmation_email_uniqueness, if: :confirmation_email_set?
 
   def self.user_from_token(token)
-    verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_token)
+    verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
     id = verifier.verify(token)
     User.find_by_id(id)
   rescue ActiveSupport::MessageVerifier::InvalidSignature
@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   # to bubble up.
   def set_token(field)
     return unless self.persisted?
-    verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_token)
+    verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
     self.send("#{field}_created_at=", Time.now)
     self.send("#{field}=", verifier.generate(self.id))
     self.save

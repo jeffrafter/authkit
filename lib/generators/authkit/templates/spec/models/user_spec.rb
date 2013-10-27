@@ -53,7 +53,7 @@ describe User do
 
   describe "tokens" do
     it "finds a user from a token" do
-      verifier = ActiveSupport::MessageVerifier.new("SECRET")
+      verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
       token = verifier.generate(1)
       user = User.new
       User.should_receive(:find_by_id).with(1).and_return(user)
