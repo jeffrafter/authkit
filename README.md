@@ -44,7 +44,7 @@ Some possible features include:
 If there is a feature you don't want to use, you just have to go and delete the generated code.
 It is your application to customize.
 
-More information is available in [FEATURES.md].
+More information is available in [FEATURES](FEATURES.md).
 
 ## Installation
 
