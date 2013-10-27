@@ -137,7 +137,7 @@ You'll need to migrate your database (check the migrations before you do):
     rake db:migrate
 
 You'll also need to connect your mailers for sending password reset instructions
-and email confirmations. (See the TODO in +user.rb+)
+and email confirmations. (See the TODO in `user.rb`)
 
 ## Testing
 
@@ -155,7 +155,7 @@ run the installer, and execute the specs in the context of that temporary
 application.
 
 The specs that are generated utilize a generous amount of mocking and stubbing in
-an attempt to keep them fast. However, they use vanilla +rspec-rails+, meaning
+an attempt to keep them fast. However, they use vanilla `rspec-rails`, meaning
 they are not using FactoryGirl, or mocha. The one caveat is shoulda-matchers
 which are required.
 
