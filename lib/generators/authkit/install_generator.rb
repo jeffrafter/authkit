@@ -18,6 +18,7 @@ module Authkit
       # Ensure the destination structure
       empty_directory "app"
       empty_directory "app/models"
+      empty_directory "app/forms"
       empty_directory "app/controllers"
       empty_directory "app/views"
       empty_directory "app/views/users"
@@ -32,10 +33,13 @@ module Authkit
       # Fill out some templates (for now, this is just straight copy)
       template "app/models/user.rb", "app/models/user.rb"
       template "app/controllers/users_controller.rb", "app/controllers/users_controller.rb"
+      template "app/controllers/signup_controller.rb", "app/controllers/signup_controller.rb"
       template "app/controllers/sessions_controller.rb", "app/controllers/sessions_controller.rb"
       template "app/controllers/password_reset_controller.rb", "app/controllers/password_reset_controller.rb"
       template "app/controllers/password_change_controller.rb", "app/controllers/password_change_controller.rb"
       template "app/controllers/email_confirmation_controller.rb", "app/controllers/email_confirmation_controller.rb"
+
+      template "app/forms/signup.rb", "app/forms/signup.rb"
 
       template "spec/models/user_spec.rb", "spec/models/user_spec.rb"
       template "spec/controllers/application_controller_spec.rb", "spec/controllers/application_controller_spec.rb"
@@ -48,35 +52,37 @@ module Authkit
       template "lib/email_format_validator.rb", "lib/email_format_validator.rb"
 
       # Don't treat these like templates
-      copy_file "app/views/users/new.html.erb", "app/views/users/new.html.erb"
+      copy_file "app/views/signup/new.html.erb", "app/views/signup/new.html.erb"
       copy_file "app/views/users/edit.html.erb", "app/views/users/edit.html.erb"
       copy_file "app/views/sessions/new.html.erb", "app/views/sessions/new.html.erb"
       copy_file "app/views/password_reset/show.html.erb", "app/views/password_reset/show.html.erb"
       copy_file "app/views/password_change/show.html.erb", "app/views/password_change/show.html.erb"
 
-      # We don't want to override this file and may have a protected section
+      # We don't want to overwrite this file and we may have a protected section so we want it at the bottom
       insert_at_end_of_class "app/controllers/application_controller.rb", "app/controllers/application_controller.rb"
 
       # Need a temp root
       route "root 'welcome#index'"
 
       # Setup the routes
-      route "get  '/email/confirm/:token', to: 'email_confirmation#show', as: :confirm"
+      route "get   '/email/confirm/:token', to: 'email_confirmation#show', as: :confirm"
 
-      route "post '/password/reset', to: 'password_reset#create'"
-      route "get  '/password/reset', to: 'password_reset#show', as: :password_reset"
-      route "post '/password/change/:token', to: 'password_change#create'"
-      route "get  '/password/change/:token', to: 'password_change#show', as: :password_change"
+      route "post  '/password/reset', to: 'password_reset#create'"
+      route "get   '/password/reset', to: 'password_reset#show', as: :password_reset"
+      route "post  '/password/change/:token', to: 'password_change#create'"
+      route "get   '/password/change/:token', to: 'password_change#show', as: :password_change"
 
-      route "get  '/signup', to: 'users#new', as: :signup"
-      route "get  '/logout', to: 'sessions#destroy', as: :logout"
-      route "get  '/login', to: 'sessions#new', as: :login"
+      route "post  '/signup', to: 'signup#create'"
+      route "get   '/signup', to: 'signup#new', as: :signup"
+      route "get   '/logout', to: 'sessions#destroy', as: :logout"
+      route "post  '/login', to: 'sessions#create'"
+      route "get   '/login', to: 'sessions#new', as: :login"
 
-      route "put  '/account', to: 'users#update'"
-      route "get  '/account', to: 'users#edit', as: :user"
+      route "patch '/account', to: 'users#update'"
+      route "get   '/account', to: 'users#edit', as: :user"
 
       route "resources :sessions, only: [:new, :create, :destroy]"
-      route "resources :users, only: [:new, :create]"
+      route "resources :users, only: [:create]"
 
       # Support for has_secure_password and has_one_time_password
       gem "active_model_otp"
@@ -99,7 +105,7 @@ module Authkit
       source = File.expand_path(find_in_source_paths(source.to_s))
       context = instance_eval('binding')
       content = ERB.new(::File.binread(source), nil, '-', '@output_buffer').result(context)
-      insert_into_file "app/controllers/application_controller.rb", "#{content}\n", before: /end\n*\z/
+      insert_into_file filename, "#{content}\n", before: /end\n*\z/
     end
 
     def generate_migration(filename)

@@ -4,9 +4,6 @@ class SessionsController < ApplicationController
   end
 
   def create
-    username_or_email = "#{params[:email]}".downcase
-    user = User.find_by_username_or_email(username_or_email) if username_or_email.present?
-
     if user && user.authenticate(params[:password])
       login(user)
       respond_to do |format|
@@ -31,5 +28,14 @@ class SessionsController < ApplicationController
       format.json { head :no_content }
       format.html { redirect_to root_path }
     end
+  end
+
+  protected
+
+  def user
+    return @user if defined?(@user)
+    username_or_email = "#{params[:email]}".downcase
+    return if username_or_email.blank?
+    @user = User.where('username = ? OR email = ?', username_or_email, username_or_email).first
   end
 end

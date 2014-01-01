@@ -3,9 +3,6 @@ class PasswordResetController < ApplicationController
   end
 
   def create
-    username_or_email = "#{params[:email]}".downcase
-    user = User.find_by_username_or_email(username_or_email) if username_or_email.present?
-
     if user && user.send_reset_password
       logout
 
@@ -25,5 +22,14 @@ class PasswordResetController < ApplicationController
         }
       end
     end
+  end
+
+  protected
+
+  def user
+    return @user if defined?(@user)
+    username_or_email = "#{params[:email]}".downcase
+    return if username_or_email.blank?
+    @user = User.where('username = ? OR email = ?', username_or_email, username_or_email).first
   end
 end

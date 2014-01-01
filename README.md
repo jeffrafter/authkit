@@ -108,16 +108,16 @@ And a nice helpful email format validator:
 
 It will also generate a set of routes:
 
-    route  get  '/email/confirm/:token', to: 'email_confirmation#show', as: :confirm
-    route  post '/password/reset', to: 'password_reset#create'
-    route  get  '/password/reset', to: 'password_reset#show', as: :password_reset
-    route  post '/password/change/:token', to: 'password_change#create'
-    route  get  '/password/change/:token', to: 'password_change#show', as: :password_change
-    route  get  '/signup', to: 'users#new', as: :signup
-    route  get  '/logout', to: 'sessions#destroy', as: :logout
-    route  get  '/login', to: 'sessions#new', as: :login
-    route  put  '/account', to: 'users#update'
-    route  get  '/account', to: 'users#edit', as: :user
+    route  get   '/email/confirm/:token', to: 'email_confirmation#show', as: :confirm
+    route  post  '/password/reset', to: 'password_reset#create'
+    route  get   '/password/reset', to: 'password_reset#show', as: :password_reset
+    route  post  '/password/change/:token', to: 'password_change#create'
+    route  get   '/password/change/:token', to: 'password_change#show', as: :password_change
+    route  get   '/signup', to: 'users#new', as: :signup
+    route  get   '/logout', to: 'sessions#destroy', as: :logout
+    route  get   '/login', to: 'sessions#new', as: :login
+    route  patch '/account', to: 'users#update'
+    route  get   '/account', to: 'users#edit', as: :user
 
     route  resources :sessions, only: [:new, :create, :destroy]
     route  resources :users, only: [:new, :create]

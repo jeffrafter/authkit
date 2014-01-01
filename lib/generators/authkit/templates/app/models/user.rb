@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
   def self.user_from_token(token)
     verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
     id = verifier.verify(token)
-    User.find_by_id(id)
+    User.where(id: id).first
   rescue ActiveSupport::MessageVerifier::InvalidSignature
     nil
   end

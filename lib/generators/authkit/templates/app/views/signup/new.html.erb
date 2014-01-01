@@ -1,19 +1,19 @@
 <h1>Sign Up</h1>
 
-<% if @user.errors.any? %>
+<% if @signup.errors.any? %>
   <div id="error_explanation">
     <div class="alert alert-error">
-      The form contains <%= pluralize(@user.errors.count, "error") %>.
+      The form contains <%= pluralize(@signup.errors.count, "error") %>.
     </div>
     <ul>
-    <% @user.errors.full_messages.each do |msg| %>
+    <% @signup.errors.full_messages.each do |msg| %>
       <li>* <%= msg %></li>
     <% end %>
     </ul>
   </div>
 <% end %>
 
-<%= form_for @user do |f| %>
+<%= form_for @signup, url: signup_path do |f| %>
   <div class="field">
     <%= f.label "first_name" %>
     <%= f.text_field "first_name" %>

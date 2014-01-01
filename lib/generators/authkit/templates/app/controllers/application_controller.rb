@@ -15,7 +15,7 @@
 
   def current_user
     return @current_user if defined?(@current_user)
-    @current_user ||= User.find_by(session[:user_id]) if session[:user_id]
+    @current_user ||= User.where(id: session[:user_id]).first if session[:user_id]
     @current_user ||= User.user_from_remember_token(cookies.signed[:remember]) unless cookies.signed[:remember].blank?
     session[:user_id] = @current_user.id if @current_user
     session[:time_zone] = @current_user.time_zone if @current_user
@@ -41,11 +41,11 @@
   end
 
   def login(user)
+    reset_session
     @current_user = user
     current_user.track_sign_in(request.remote_ip) if allow_tracking?
     current_user.set_token(:remember_token)
     set_remember_cookie
-    reset_session
     session[:user_id] = current_user.id
     session[:time_zone] = current_user.time_zone
     set_time_zone
