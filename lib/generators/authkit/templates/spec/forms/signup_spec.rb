@@ -11,7 +11,6 @@ describe Signup do
     it "should validate terms of service acceptance" do
       signup.terms_of_service = "1"
       signup.valid?
-      puts signup.errors.full_messages.to_sentence
       signup.should_not have(1).errors_on(:terms_of_service)
     end
 

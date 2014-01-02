@@ -76,18 +76,19 @@ This will add some basic migrations for the user:
 
 It will also create general authentication models and controllers:
 
-    create  app/models/user.rb
-    create  app/forms/signup.rb
-    create  app/controllers/users_controller.rb
-    create  app/controllers/sessions_controller.rb
-    create  app/controllers/password_reset_controller.rb
-    create  app/controllers/password_change_controller.rb
-    create  app/controllers/email_confirmation_controller.rb
-    create  app/views/signup/new.html.erb
-    create  app/views/users/edit.html.erb
-    create  app/views/sessions/new.html.erb
-    create  app/views/password_reset/show.html.erb
-    create  app/views/password_change/show.html.erb
+    app/models/user.rb
+    app/controllers/users_controller.rb
+    app/controllers/signup_controller.rb
+    app/controllers/sessions_controller.rb
+    app/controllers/password_reset_controller.rb
+    app/controllers/password_change_controller.rb
+    app/controllers/email_confirmation_controller.rb
+    app/forms/signup.rb
+    app/views/signup/new.html.erb
+    app/views/users/edit.html.erb
+    app/views/sessions/new.html.erb
+    app/views/password_reset/show.html.erb
+    app/views/password_change/show.html.erb
 
 And will insert a series of helpers into your application controller:
 
@@ -95,13 +96,16 @@ And will insert a series of helpers into your application controller:
 
 And create corresponding specs:
 
-    create  spec/models/user_spec.rb
-    create  spec/controllers/application_controller_spec.rb
-    create  spec/controllers/users_controller_spec.rb
-    create  spec/controllers/sessions_controller_spec.rb
-    create  spec/controllers/password_reset_controller_spec.rb
-    create  spec/controllers/password_change_controller_spec.rb
-    create  spec/controllers/email_confirmation_controller_spec.rb
+    spec/factories/user.rb
+    spec/models/user_spec.rb
+    spec/forms/signup_spec.rb
+    spec/controllers/application_controller_spec.rb
+    spec/controllers/users_controller_spec.rb
+    spec/controllers/signup_controller_spec.rb
+    spec/controllers/sessions_controller_spec.rb
+    spec/controllers/password_reset_controller_spec.rb
+    spec/controllers/password_change_controller_spec.rb
+    spec/controllers/email_confirmation_controller_spec.rb
 
 And a nice helpful email format validator:
 
@@ -114,14 +118,15 @@ It will also generate a set of routes:
     route  get   '/password/reset', to: 'password_reset#show', as: :password_reset
     route  post  '/password/change/:token', to: 'password_change#create'
     route  get   '/password/change/:token', to: 'password_change#show', as: :password_change
-    route  get   '/signup', to: 'users#new', as: :signup
+    route  post  '/signup', to: 'signup#create'
+    route  get   '/signup', to: 'signup#new', as: :signup
     route  get   '/logout', to: 'sessions#destroy', as: :logout
     route  get   '/login', to: 'sessions#new', as: :login
     route  patch '/account', to: 'users#update'
     route  get   '/account', to: 'users#edit', as: :user
 
     route  resources :sessions, only: [:new, :create, :destroy]
-    route  resources :users, only: [:new, :create]
+    route  resources :users, only: [:create]
 
 And will add some gems to your Gemfile:
 
@@ -129,6 +134,7 @@ And will add some gems to your Gemfile:
     gemfile  bcrypt-ruby (~> 3.1.2)
     gemfile  rspec-rails, :test, :development
     gemfile  shoulda-matchers, :test, :development
+    gemfile  factor_girl_rails, :test, :development
 
 Once you have this installed you can remove the gem, however you may want to
 keep the gem installed in development as you will be able to update it
@@ -164,7 +170,6 @@ that more people were using them than not.
 
 ## TODO
 
-* Add the parameter filtering into the initializer
 * Add oauth2 support (but not logging in?) in the form of facebook support, twitter support, google support
 * Add avatar support (maybe that should be uploadkit)
 * Add full name option (instead of first name and last name)name

@@ -68,6 +68,8 @@ module Authkit
       # Technically, we aren't inserting this at the end of the class, but the end of the RSpec::Configure
       insert_at_end_of_class "spec/spec_helper.rb", "spec/spec_helper.rb"
 
+      insert_at_end_of_file "config/initializers/filter_parameter_logging.rb", "config/initializers/filter_parameter_logging.rb"
+
       # Need a temp root
       route "root 'welcome#index'"
 
@@ -108,6 +110,13 @@ module Authkit
     end
 
     protected
+
+    def insert_at_end_of_file(filename, source)
+      source = File.expand_path(find_in_source_paths(source.to_s))
+      context = instance_eval('binding')
+      content = ERB.new(::File.binread(source), nil, '-', '@output_buffer').result(context)
+      insert_into_file filename, "#{content}\n", before: /\z/
+    end
 
     def insert_at_end_of_class(filename, source)
       source = File.expand_path(find_in_source_paths(source.to_s))
