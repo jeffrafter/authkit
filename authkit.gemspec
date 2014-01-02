@@ -22,6 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec-rails"
   spec.add_development_dependency "factory_girl_rails"
-  spec.add_development_dependency "mocha"
   spec.add_development_dependency "active_model_otp"
 end

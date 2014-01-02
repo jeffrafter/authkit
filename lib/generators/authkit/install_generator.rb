@@ -26,6 +26,7 @@ module Authkit
       empty_directory "app/views/password_reset"
       empty_directory "app/views/password_change"
       empty_directory "spec"
+      empty_directory "spec/factories"
       empty_directory "spec/models"
       empty_directory "spec/controllers"
       empty_directory "lib"
@@ -41,9 +42,12 @@ module Authkit
 
       template "app/forms/signup.rb", "app/forms/signup.rb"
 
+      template "spec/factories/user.rb", "spec/factories/user.rb"
       template "spec/models/user_spec.rb", "spec/models/user_spec.rb"
+      template "spec/forms/signup_spec.rb", "spec/forms/signup_spec.rb"
       template "spec/controllers/application_controller_spec.rb", "spec/controllers/application_controller_spec.rb"
       template "spec/controllers/users_controller_spec.rb", "spec/controllers/users_controller_spec.rb"
+      template "spec/controllers/signup_controller_spec.rb", "spec/controllers/signup_controller_spec.rb"
       template "spec/controllers/sessions_controller_spec.rb", "spec/controllers/sessions_controller_spec.rb"
       template "spec/controllers/password_reset_controller_spec.rb", "spec/controllers/password_reset_controller_spec.rb"
       template "spec/controllers/password_change_controller_spec.rb", "spec/controllers/password_change_controller_spec.rb"
@@ -60,6 +64,9 @@ module Authkit
 
       # We don't want to overwrite this file and we may have a protected section so we want it at the bottom
       insert_at_end_of_class "app/controllers/application_controller.rb", "app/controllers/application_controller.rb"
+
+      # Technically, we aren't inserting this at the end of the class, but the end of the RSpec::Configure
+      insert_at_end_of_class "spec/spec_helper.rb", "spec/spec_helper.rb"
 
       # Need a temp root
       route "root 'welcome#index'"
@@ -86,12 +93,13 @@ module Authkit
 
       # Support for has_secure_password and has_one_time_password
       gem "active_model_otp"
-      gem "bcrypt-ruby", '~> 3.0.0'
+      gem "bcrypt-ruby", '~> 3.1.2'
 
       # RSpec needs to be in the development group to be used in generators
       gem_group :test, :development do
         gem "rspec-rails"
         gem "shoulda-matchers"
+        gem "factory_girl_rails"
       end
     end
 

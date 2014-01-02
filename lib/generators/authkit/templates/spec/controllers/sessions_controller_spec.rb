@@ -3,13 +3,8 @@ require 'spec_helper'
 describe SessionsController do
   render_views
 
-  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
-  let(:user) { User.new(user_params) }
-  let(:logged_in_session) { { user_id: "1" } }
-
-  before(:each) do
-    User.stub(:find_by).with("1").and_return(user)
-  end
+  let(:user) { create(:user, email: "test@example.com") }
+  let(:logged_in_session) { { user_id: user.id } }
 
   describe "GET 'new'" do
     it "returns http success" do
@@ -20,8 +15,7 @@ describe SessionsController do
 
   describe "POST 'create'" do
     before(:each) do
-      User.stub(:find_by_username_or_email).with("test@example.com").and_return(user)
-      User.stub(:find_by_username_or_email).with("unknown@example.com").and_return(nil)
+      user
     end
 
     it "redirects the user" do
@@ -29,24 +23,19 @@ describe SessionsController do
       response.should be_redirect
     end
 
-    it "finds the user by the email or user name" do
-      User.should_receive(:find_by_username_or_email).with("test@example.com").and_return(user)
-      post :create, {email: "test@example.com", password: "example"}
-    end
-
-    it "downcases the email or user name" do
-      User.should_receive(:find_by_username_or_email).with("test@example.com").and_return(user)
-      post :create, {email: "TEST@EXAMPLE.COM", password: "example"}
-    end
-
     it "authenticates if it finds the user" do
-      user.should_receive(:authenticate).and_return(true)
+      User.any_instance.should_receive(:authenticate).and_return(true)
       post :create, {email: "test@example.com", password: "example"}
     end
 
     it "does not authenticate if it does not find a user" do
       User.any_instance.should_not_receive(:authenticate)
       post :create, {email: "unknown@example.com", password: "example"}
+    end
+
+    it "downcases the email or user name" do
+      User.any_instance.should_receive(:authenticate).and_return(true)
+      post :create, {email: "TEST@EXAMPLE.COM", password: "example"}
     end
 
     it "signs the user in" do

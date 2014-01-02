@@ -1,13 +1,12 @@
 require 'spec_helper'
 
 describe ApplicationController do
-  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
-  let(:user) { User.new(user_params) }
-  let(:logged_in_session) { { user_id: "1" } }
-  let(:unknown_session) { { user_id: "2" } }
+  let(:user) { create(:user) }
+  let(:logged_in_session) { { user_id: user.id } }
+  let(:unknown_session) { { user_id: user.id + 1000000 } }
 
   before(:each) do
-    User.stub(:find_by).with("1").and_return(user)
+    user
   end
 
   controller do
@@ -34,7 +33,9 @@ describe ApplicationController do
     end
 
     it "does not perform multiple finds" do
-      User.should_receive(:find_by)
+      where = double
+      where.stub(:first).and_return(nil)
+      User.should_receive(:where).and_return(where)
       get :new, {}, unknown_session
       controller.send(:current_user).should be_nil
     end
@@ -55,7 +56,7 @@ describe ApplicationController do
     end
 
     it "sets the time zone" do
-      user.should_receive(:time_zone).and_return("Pacific Time (US & Canada)")
+      User.any_instance.should_receive(:time_zone).and_return("Pacific Time (US & Canada)")
       get :index, {}, logged_in_session
       Time.zone.name.should == "Pacific Time (US & Canada)"
     end
@@ -167,7 +168,7 @@ describe ApplicationController do
 
     it "clears the remember token" do
       get :index, {}, logged_in_session
-      user.should_receive(:clear_remember_token).and_return(:true)
+      User.any_instance.should_receive(:clear_remember_token).and_return(:true)
       controller.send(:logout)
     end
   end

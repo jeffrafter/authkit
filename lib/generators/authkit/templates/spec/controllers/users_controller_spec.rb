@@ -3,100 +3,10 @@ require 'spec_helper'
 describe UsersController do
   render_views
 
-  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
+  let(:user) { create(:user, email: "test@example.com") }
+  let(:user_params) { attributes_for(:user) }
   let(:invalid_params) { user_params.merge(password: 'newpassword', password_confirmation: 'wrongpassword') }
-  let(:user) { User.new(user_params) }
-  let(:logged_in_session) { { user_id: "1" } }
-
-  before(:each) do
-    User.stub(:find_by).with("1").and_return(user)
-  end
-
-  describe "GET 'new'" do
-    it "returns http success" do
-      get :new
-      response.should be_success
-      assigns(:user).should be_a_new(User)
-    end
-  end
-
-  describe "POST 'create'" do
-    describe "with valid params" do
-      describe "from html" do
-        it "creates a new user" do
-          expect {
-            post :create, {user: user_params}, {}
-          }.to change(User, :count).by(1)
-        end
-
-        it "confirms the email" do
-          User.any_instance.should_receive(:send_confirmation)
-          post :create, {user: user_params}, {}
-        end
-
-        it "signs the user in" do
-          post :create, {user: user_params}, {}
-          controller.send(:current_user).should == assigns(:user)
-        end
-
-        it "redirects to the root" do
-          post :create, {user: user_params}
-          response.should be_redirect
-        end
-      end
-
-      describe "from json" do
-        it "creates the user" do
-          expect {
-            post :create, {user: user_params, format: 'json'}, {}
-          }.to change(User, :count).by(1)
-        end
-
-        it "signs the user in" do
-          post :create, {user: user_params, format: 'json'}, {}
-          controller.send(:current_user).should == assigns(:user)
-        end
-
-        it "returns http success" do
-          post :create, {user: user_params, format: 'json'}
-          response.should be_success
-        end
-      end
-    end
-
-    describe "with invalid params" do
-      describe "from html" do
-        it "renders the new page" do
-          post :create, {user: invalid_params}, {}
-          response.should render_template("new")
-        end
-
-        it "does not create a user" do
-          expect {
-            post :create, {user: invalid_params}, {}
-          }.to_not change(User, :count)
-        end
-
-        it "sets the errors" do
-          post :create, {user: invalid_params}, {}
-          assigns(:user).should have(2).errors_on(:password_confirmation)
-        end
-      end
-
-      describe "from json" do
-        it "returns a 422" do
-          post :create, {user: invalid_params, format: 'json'}, {}
-          response.code.should == '422'
-        end
-
-        it "includes the errors in the json" do
-          post :create, {user: invalid_params, format: 'json'}, {}
-          assigns(:user).should have(2).errors_on(:password_confirmation)
-          response.body.should =~ /doesn't match Password/i
-        end
-      end
-    end
-  end
+  let(:logged_in_session) { { user_id: user.id } }
 
   describe "GET 'edit'" do
     it "redirects if there is no current user" do
@@ -118,6 +28,10 @@ describe UsersController do
 
     describe "with valid params" do
       describe "when changing the email" do
+        before(:each) do
+          controller.stub(:current_user).and_return(user)
+        end
+
         it "doesn't send the confirmation the email if unchanged" do
           user.email = user.confirmation_email
           user.confirmation_email = nil
@@ -138,6 +52,10 @@ describe UsersController do
       end
 
       describe "from html" do
+        before(:each) do
+          controller.stub(:current_user).and_return(user)
+        end
+
         it "updates the user" do
           expect {
             put :update, {user: user_params.merge(first_name: "Alvarez")}, logged_in_session
@@ -151,6 +69,10 @@ describe UsersController do
       end
 
       describe "from json" do
+        before(:each) do
+          controller.stub(:current_user).and_return(user)
+        end
+
         it "updates the user" do
           expect {
             put :update, {user: user_params.merge(first_name: "Alvarez"), format: 'json'}, logged_in_session
@@ -160,6 +82,10 @@ describe UsersController do
     end
 
     describe "with invalid params" do
+      before(:each) do
+        controller.stub(:current_user).and_return(user)
+      end
+
       describe "from html" do
         before(:each) do
           put :update, {user: invalid_params}, logged_in_session

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe User do
-  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
+  let(:user_params) { attributes_for(:user) }
 
   it "has secure password support" do
     User.new.should respond_to(:authenticate)
@@ -32,7 +32,7 @@ describe User do
   describe "validations" do
     describe "unique" do
       before(:each) do
-        User.create!(user_params)
+        create(:user)
       end
       it { should validate_uniqueness_of(:username) }
       it { should validate_uniqueness_of(:email) }
@@ -53,11 +53,10 @@ describe User do
 
   describe "tokens" do
     it "finds a user from a token" do
+      user = create(:user)
       verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
-      token = verifier.generate(1)
-      user = User.new
-      User.should_receive(:find_by_id).with(1).and_return(user)
-      User.user_from_token(token).should == user
+      token = verifier.generate(user.id)
+      User.user_from_token(token).id.should == user.id
     end
 
     it "does not find a user from an invalid token" do
@@ -171,7 +170,7 @@ describe User do
   end
 
   describe "emails" do
-    let(:user) { User.new(user_params) }
+    let(:user) { build(:user) }
 
     describe "with valid params" do
       it "confirms the email" do
@@ -219,7 +218,7 @@ describe User do
     end
 
     it "does not confirm emails if they are already used" do
-      User.create(user_params.merge(email: "new@example.com", username: "newuser"))
+      create(:user, email: "new@example.com", username: "newuser")
       user.confirmation_email = "new@example.com"
       user.confirmation_token = "TOKEN"
       user.email_confirmed.should == false
@@ -229,7 +228,7 @@ describe User do
 
   describe "passwords" do
     it "changes the password if it matches" do
-      user = User.new(user_params)
+      user = build(:user)
       user.should_receive(:save).and_return(true)
       user.change_password("password", "password")
       user.password_digest.should_not be_blank

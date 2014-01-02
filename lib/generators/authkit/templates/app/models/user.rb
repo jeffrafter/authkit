@@ -90,6 +90,11 @@ class User < ActiveRecord::Base
     self.save
   end
 
+  def send_welcome
+    # TODO: insert your mailer logic here
+    true
+  end
+
   def clear_remember_token
     self.remember_token = nil
     self.remember_token_created_at = nil

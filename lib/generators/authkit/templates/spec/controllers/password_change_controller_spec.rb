@@ -3,8 +3,7 @@ require 'spec_helper'
 describe PasswordChangeController do
   render_views
 
-  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
-  let(:user) { User.new(user_params) }
+  let(:user) { build(:user) }
   let(:token) { "TOKEN" }
 
   describe "GET 'show'" do

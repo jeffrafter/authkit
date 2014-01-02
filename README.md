@@ -77,12 +77,13 @@ This will add some basic migrations for the user:
 It will also create general authentication models and controllers:
 
     create  app/models/user.rb
+    create  app/forms/signup.rb
     create  app/controllers/users_controller.rb
     create  app/controllers/sessions_controller.rb
     create  app/controllers/password_reset_controller.rb
     create  app/controllers/password_change_controller.rb
     create  app/controllers/email_confirmation_controller.rb
-    create  app/views/users/new.html.erb
+    create  app/views/signup/new.html.erb
     create  app/views/users/edit.html.erb
     create  app/views/sessions/new.html.erb
     create  app/views/password_reset/show.html.erb
@@ -125,7 +126,7 @@ It will also generate a set of routes:
 And will add some gems to your Gemfile:
 
     gemfile  active_model_otp
-    gemfile  bcrypt-ruby (~> 3.0.0)
+    gemfile  bcrypt-ruby (~> 3.1.2)
     gemfile  rspec-rails, :test, :development
     gemfile  shoulda-matchers, :test, :development
 
@@ -157,8 +158,16 @@ application.
 
 The specs that are generated utilize a generous amount of mocking and stubbing in
 an attempt to keep them fast. However, they use vanilla `rspec-rails`, meaning
-they are not using FactoryGirl, or mocha. The one caveat is shoulda-matchers
-which are required.
+they are not using mocha. The two caveats are shoulda-matchers and FactoryGirl which
+are required. It is pretty easy to remove these dependencies, it just turned out
+that more people were using them than not.
+
+## TODO
+
+* Add the parameter filtering into the initializer
+* Add oauth2 support (but not logging in?) in the form of facebook support, twitter support, google support
+* Add avatar support (maybe that should be uploadkit)
+* Add full name option (instead of first name and last name)name
 
 ## Contributing
 

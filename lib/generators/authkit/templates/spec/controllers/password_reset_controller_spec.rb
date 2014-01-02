@@ -3,8 +3,7 @@ require 'spec_helper'
 describe PasswordResetController do
   render_views
 
-  let(:user_params) { { email: "test@example.com", username: "test", password: "example", password_confirmation: "example" } }
-  let(:user) { User.new(user_params) }
+  let(:user) { create(:user, email: "test@example.com") }
 
   describe "GET 'show'" do
     it "returns http success" do
@@ -15,10 +14,7 @@ describe PasswordResetController do
 
   describe "POST 'create'" do
     before(:each) do
-      User.stub(:find_by_username_or_email).with("test@example.com").and_return(user)
-      User.stub(:find_by_username_or_email).with("unknown@example.com").and_return(nil)
-      user.stub(:persisted?).and_return(true)
-      user.stub(:id).and_return(1)
+      user
     end
 
     it "redirects the user" do
@@ -27,13 +23,8 @@ describe PasswordResetController do
     end
 
     it "finds the user by the email or user name" do
-      User.should_receive(:find_by_username_or_email).with("test@example.com").and_return(user)
       post :create, {email: "test@example.com"}
-    end
-
-    it "downcases the email or user name" do
-      User.should_receive(:find_by_username_or_email).with("test@example.com").and_return(user)
-      post :create, {email: "TEST@EXAMPLE.COM"}
+      controller.send(:user).should == user
     end
 
     it "logs any current user out if it finds the user" do
@@ -42,13 +33,18 @@ describe PasswordResetController do
     end
 
     it "resets the password if it finds the user" do
-      user.should_receive(:send_reset_password).and_return(true)
+      User.any_instance.should_receive(:send_reset_password).and_return(true)
       post :create, {email: "test@example.com"}
     end
 
     it "does not reset the password if it does not find a user" do
       User.any_instance.should_not_receive(:send_reset_password)
       post :create, {email: "unknown@example.com"}
+    end
+
+    it "downcases the email or user name" do
+      User.any_instance.should_receive(:send_reset_password).and_return(true)
+      post :create, {email: "TEST@EXAMPLE.COM"}
     end
 
     describe "from json" do
