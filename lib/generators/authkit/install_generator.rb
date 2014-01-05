@@ -70,9 +70,6 @@ module Authkit
 
       insert_at_end_of_file "config/initializers/filter_parameter_logging.rb", "config/initializers/filter_parameter_logging.rb"
 
-      # Need a temp root
-      route "root 'welcome#index'"
-
       # Setup the routes
       route "get   '/email/confirm/:token', to: 'email_confirmation#show', as: :confirm"
 

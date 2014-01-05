@@ -11,7 +11,6 @@ describe ApplicationController do
 
   controller do
     before_filter :require_login, only: [:index]
-    before_filter :require_token, only: [:show]
 
     def new
       head :ok
@@ -46,11 +45,12 @@ describe ApplicationController do
     end
 
     it "finds the current user from the remember cookie" do
+      user.save
+      user.set_remember_token
       # Need to sign the cookie
       request.env["action_dispatch.secret_token"] = "SECRET"
       verifier = ActiveSupport::MessageVerifier.new(request.env["action_dispatch.secret_token".freeze])
-      request.cookies[:remember] = verifier.generate("TOKEN")
-      User.should_receive(:user_from_remember_token).with("TOKEN").and_return(user)
+      request.cookies[:remember] = verifier.generate(user.remember_token)
       get :index
       controller.send(:current_user).should == user
     end
@@ -111,27 +111,6 @@ describe ApplicationController do
     end
   end
 
-  describe "tokens" do
-    it "requires a user token" do
-      User.should_receive(:user_from_token).with('testtoken').and_return(user)
-      get 'show', {id: '1',  token: 'testtoken'}
-    end
-
-    it "returns an error if there is no user token" do
-      User.should_receive(:user_from_token).with('testtoken').and_return(nil)
-      controller.should_receive(:deny_user)
-      get 'show', {id: '1',  token: 'testtoken'}
-    end
-
-    it "verifies the token" do
-      request.env["action_dispatch.secret_token"] = "SECRET"
-      verifier = ActiveSupport::MessageVerifier.new(request.env["action_dispatch.secret_token".freeze])
-      token = verifier.generate("TOKEN")
-      User.should_receive(:user_from_token).with(token).and_return(user)
-      get 'show', {id: '1', token: token}
-    end
-  end
-
   describe "login" do
     it "tracks the login" do
       get :new
@@ -142,7 +121,7 @@ describe ApplicationController do
     it "remembers the user using a token and cookie" do
       get :new
       controller.should_receive(:set_remember_cookie)
-      user.should_receive(:set_token).with(:remember_token).and_return(:true)
+      user.should_receive(:set_remember_token)
       controller.send(:login, user)
     end
 

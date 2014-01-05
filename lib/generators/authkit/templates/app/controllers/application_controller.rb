@@ -13,10 +13,14 @@
 
   protected
 
+  # This does not currently implement an expiry for the remember token. Although
+  # the user is fetched using id or remember token, these come from a verified
+  # cookie (verified using secure compare) so these database calls do not need
+  # to protect against timing attacks.
   def current_user
     return @current_user if defined?(@current_user)
     @current_user ||= User.where(id: session[:user_id]).first if session[:user_id]
-    @current_user ||= User.user_from_remember_token(cookies.signed[:remember]) unless cookies.signed[:remember].blank?
+    @current_user ||= User.where(remember_token: cookies.signed[:remember]).first unless cookies.signed[:remember].blank?
     session[:user_id] = @current_user.id if @current_user
     session[:time_zone] = @current_user.time_zone if @current_user
     set_time_zone
@@ -36,15 +40,11 @@
     deny_user(nil, login_path) unless logged_in?
   end
 
-  def require_token
-    deny_user("Invalid token", root_path) unless @user = User.user_from_token(params[:token])
-  end
-
   def login(user)
     reset_session
     @current_user = user
     current_user.track_sign_in(request.remote_ip) if allow_tracking?
-    current_user.set_token(:remember_token)
+    current_user.set_remember_token
     set_remember_cookie
     session[:user_id] = current_user.id
     session[:time_zone] = current_user.time_zone

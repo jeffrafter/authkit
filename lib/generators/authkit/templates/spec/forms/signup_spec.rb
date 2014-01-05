@@ -38,6 +38,7 @@ describe Signup do
         signup.user = User.new
         signup.should_receive(:valid?).and_return(true)
         signup.user.should_receive(:save!)
+        signup.user.should_receive(:send_confirmation)
         signup.save
       end
 
@@ -45,6 +46,7 @@ describe Signup do
         signup.user = User.new
         signup.should_receive(:valid?).and_return(true)
         signup.stub(:persist!)
+        signup.user.should_receive(:send_confirmation)
         signup.user.should_receive(:send_welcome)
         signup.save
       end
@@ -84,6 +86,7 @@ describe Signup do
     User.should_receive(:new).and_return(user)
     user.stub(:valid?).and_return(true)
     user.should_receive(:save!)
+    user.should_receive(:send_confirmation)
     signup.stub(:valid?).and_return(true)
     signup.save
   end

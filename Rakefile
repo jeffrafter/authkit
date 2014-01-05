@@ -16,6 +16,11 @@ namespace :spec do
   end
 end
 
+# When using sed to replace in place, don't rely on -i for POSIX compatibility
+def sed(command, filename)
+  system "sed '#{command}' #{filename} > #{filename}.tmp && mv #{filename}.tmp #{filename}"
+end
+
 namespace :generator do
   desc "Cleans up the sample app before running the generator"
   task :cleanup do
@@ -36,6 +41,9 @@ namespace :generator do
     system "echo \"gem '#{gem_name}', :path => '#{gem_root}'\" >> spec/tmp/sample/Gemfile"
     system "cd spec/tmp/sample && bundle install"
     system "cd spec/tmp/sample && rails g rspec:install"
+
+    # Open up the root route for specs
+    sed("s/# root/root/", "spec/tmp/sample/config/routes.rb")
 
     # Make a thing
     system "cd spec/tmp/sample && rails g scaffold thing name:string mood:string"

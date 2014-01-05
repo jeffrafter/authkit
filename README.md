@@ -168,11 +168,28 @@ they are not using mocha. The two caveats are shoulda-matchers and FactoryGirl w
 are required. It is pretty easy to remove these dependencies, it just turned out
 that more people were using them than not.
 
+## NOTES
+
+* no expiry for confirmation, reset_password and remember_token
+* generating code and not being able to update considered harmful
+* secure cookies (in application_controller)
+* SSL expected
+* remember me is always on
+* need a root route
+* password complexity
+* username resrictions
+
 ## TODO
 
 * Add oauth2 support (but not logging in?) in the form of facebook support, twitter support, google support
 * Add avatar support (maybe that should be uploadkit)
 * Add full name option (instead of first name and last name)name
+* Add authy support
+* Add notification for changes to account (security settings changed)
+* Add ability to re-auth for sensitive changes (available for the current session only)
+* User session tracking and revoking
+* Audit logs
+* Encrypt tokens in the database to prevent someone with read access from gaining control
 
 ## Contributing
 

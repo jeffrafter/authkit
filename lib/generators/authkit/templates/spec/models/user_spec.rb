@@ -52,67 +52,17 @@ describe User do
   end
 
   describe "tokens" do
-    it "finds a user from a token" do
-      user = create(:user)
-      verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
-      token = verifier.generate(user.id)
-      User.user_from_token(token).id.should == user.id
-    end
-
-    it "does not find a user from an invalid token" do
-      User.user_from_token("INVALID").should be_nil
-    end
-
-    describe "for fields" do
-      before(:each) do
-        User.should_receive(:user_from_token).with("TOKEN").and_return("USER")
-      end
-
-      it "finds a user from the remember token" do
-        User.user_from_remember_token("TOKEN").should == "USER"
-      end
-
-      it "finds a user from the reset password token" do
-        User.user_from_reset_password_token("TOKEN").should == "USER"
-      end
-
-      it "finds a user from the confirm token" do
-        User.user_from_confirmation_token("TOKEN").should == "USER"
-      end
-
-      it "finds a user from the unlock token" do
-        User.user_from_unlock_token("TOKEN").should == "USER"
-      end
-    end
-
-    it "sets a token" do
+    it "sets the remember token" do
       user = User.new
-      user.should_receive(:persisted?).and_return(true)
-      user.should_receive(:id).and_return(1)
-      user.should_receive(:save).and_return(true)
-      user.set_token(:remember_token)
-      user.remember_token.should_not be_nil
-    end
-
-    it "does not set a token for a new record" do
-      user = User.new
-      user.set_token(:remember_token)
-      user.remember_token.should be_nil
-    end
-
-    it "sets the created at for the token" do
-      Time.stub(:now).and_return(time = Time.now)
-      user = User.new
-      user.should_receive(:persisted?).and_return(true)
-      user.should_receive(:id).and_return(1)
-      user.should_receive(:save).and_return(true)
-      user.set_token(:remember_token)
-      user.remember_token_created_at.should == time
+      user.should_receive(:save!).and_return(true)
+      user.set_remember_token
+      user.remember_token.should_not be_blank
+      user.remember_token_created_at.should_not be_blank
     end
 
     it "clears the remember token" do
       user = User.new
-      user.should_receive(:save).and_return(true)
+      user.should_receive(:save!).and_return(true)
       user.remember_token = "TOKEN"
       user.remember_token_created_at = Time.now
       user.clear_remember_token
@@ -175,9 +125,7 @@ describe User do
     describe "with valid params" do
       it "confirms the email" do
         user = User.new
-        user.should_receive(:persisted?).and_return(true)
-        user.should_receive(:id).and_return(1)
-        user.should_receive(:save).and_return(true)
+        user.should_receive(:save!).and_return(true)
         Time.stub(:now).and_return(time = Time.now)
 
         user.send_confirmation
@@ -185,11 +133,17 @@ describe User do
         user.confirmation_token.should_not be_blank
       end
 
+      it "generates a token before it sends confirmation email instructions" do
+        user = User.new
+        user.should_receive(:save!).and_return(true)
+        user.send_confirmation
+        user.confirmation_token.should_not be_blank
+        user.confirmation_token_created_at.should_not be_blank
+      end
+
       it "sends confirmation email instructions" do
         user = User.new
-        user.should_receive(:persisted?).and_return(true)
-        user.should_receive(:id).and_return(1)
-        user.should_receive(:save).and_return(true)
+        user.should_receive(:save!).and_return(true)
         user.send_confirmation
       end
 
@@ -246,9 +200,7 @@ describe User do
 
     it "resets the password" do
       user = User.new
-      user.should_receive(:persisted?).and_return(true)
-      user.should_receive(:id).and_return(1)
-      user.should_receive(:save).and_return(true)
+      user.should_receive(:save!).and_return(true)
       Time.stub(:now).and_return(time = Time.now)
 
       user.send_reset_password
@@ -256,11 +208,17 @@ describe User do
       user.reset_password_token.should_not be_blank
     end
 
+    it "generates a token before it sends reset password instructions" do
+      user = User.new
+      user.should_receive(:save!).and_return(true)
+      user.send_reset_password
+      user.reset_password_token.should_not be_blank
+      user.reset_password_token_created_at.should_not be_blank
+    end
+
     it "sends reset password instructions" do
       user = User.new
-      user.should_receive(:persisted?).and_return(true)
-      user.should_receive(:id).and_return(1)
-      user.should_receive(:save).and_return(true)
+      user.should_receive(:save!).and_return(true)
       user.send_reset_password
     end
   end

@@ -31,52 +31,6 @@ class User < ActiveRecord::Base
   # Confirm emails check for existing emails for uniqueness as a convenience
   validate  :confirmation_email_uniqueness, if: :confirmation_email_set?
 
-  def self.user_from_token(token)
-    verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
-    id = verifier.verify(token)
-    User.where(id: id).first
-  rescue ActiveSupport::MessageVerifier::InvalidSignature
-    nil
-  end
-
-  # The tokens created by this method have unique indexes but they are digests of the
-  # id which is unique. Because of this we shouldn't see a conflict. If we do, however
-  # we want the ActiveRecord::StatementInvalid or ActiveRecord::RecordNotUnique exeception
-  # to bubble up.
-  def set_token(field)
-    return unless self.persisted?
-    verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
-    self.send("#{field}_created_at=", Time.now)
-    self.send("#{field}=", verifier.generate(self.id))
-    self.save
-  end
-
-  # These methods are a little redundant, but give you the opportunity to
-  # insert expiry for any of these token based authentication strategies.
-  # For example:
-  #
-  #    def self.user_from_remember_token(token)
-  #      user = user_from_token(token)
-  #      user = nil if user && user.remember_token_created_at < 30.days.ago
-  #      user
-  #    end
-  #
-  def self.user_from_remember_token(token)
-    user_from_token(token)
-  end
-
-  def self.user_from_reset_password_token(token)
-    user_from_token(token)
-  end
-
-  def self.user_from_confirmation_token(token)
-    user_from_token(token)
-  end
-
-  def self.user_from_unlock_token(token)
-    user_from_token(token)
-  end
-
   def display_name
     [first_name, last_name].compact.join(" ")
   end
@@ -90,26 +44,48 @@ class User < ActiveRecord::Base
     self.save
   end
 
-  def send_welcome
-    # TODO: insert your mailer logic here
-    true
+  # The tokens created by this method have unique indexes but collisions are very
+  # unlikely (1/64^32). Because of this there shouldn't be a conflict. If one occurs
+  # the ActiveRecord::StatementInvalid or ActiveRecord::RecordNotUnique exeception
+  # should bubble up.
+  def set_remember_token
+    self.remember_token = SecureRandom.urlsafe_base64(32)
+    self.remember_token_created_at = Time.now
+    self.save!
   end
 
   def clear_remember_token
     self.remember_token = nil
     self.remember_token_created_at = nil
-    self.save
+    self.save!
   end
 
+  def send_welcome
+    # TODO: insert your mailer logic here
+    true
+  end
+
+  # The tokens created by this method have unique indexes but collisions are very
+  # unlikely (1/64^32). Because of this there shouldn't be a conflict. If one occurs
+  # the ActiveRecord::StatementInvalid or ActiveRecord::RecordNotUnique exeception
+  # should bubble up.
   def send_reset_password
-    return false unless set_token(:reset_password_token)
+    self.reset_password_token = SecureRandom.urlsafe_base64(32)
+    self.reset_password_token_created_at = Time.now
+    self.save!
 
     # TODO: insert your mailer logic here
     true
   end
 
+  # The tokens created by this method have unique indexes but collisions are very
+  # unlikely (1/64^32). Because of this there shouldn't be a conflict. If one occurs
+  # the ActiveRecord::StatementInvalid or ActiveRecord::RecordNotUnique exeception
+  # should bubble up.
   def send_confirmation
-    return false unless set_token(:confirmation_token)
+    self.confirmation_token = SecureRandom.urlsafe_base64(32)
+    self.confirmation_token_created_at = Time.now
+    self.save!
 
     # TODO: insert your mailer logic here
     true
@@ -172,4 +148,5 @@ class User < ActiveRecord::Base
   def confirmation_email_uniqueness
     errors.add(:confirmation_email, :taken, value: email) if User.where('email = ?', confirmation_email).count > 0
   end
+
 end
