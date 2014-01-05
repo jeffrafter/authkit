@@ -33,6 +33,20 @@ describe SignupController do
           controller.send(:current_user).should == assigns(:signup).user
         end
 
+        it "remembers the user if remember me is chosen" do
+          User.any_instance.should_receive(:set_remember_token)
+          controller.should_receive(:set_remember_cookie)
+          post :create, {signup: signup_params, remember_me: "1"}, {}
+          controller.send(:current_user).should == assigns(:signup).user
+        end
+
+        it "does not remember the user if remember me is not chosen" do
+          User.any_instance.should_not_receive(:set_remember_token)
+          controller.should_not_receive(:set_remember_cookie)
+          post :create, {signup: signup_params, remember_me: ""}, {}
+          controller.send(:current_user).should == assigns(:signup).user
+        end
+
         it "redirects to the root" do
           post :create, {signup: signup_params}
           response.should be_redirect

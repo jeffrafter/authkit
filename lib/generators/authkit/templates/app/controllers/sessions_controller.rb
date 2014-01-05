@@ -4,8 +4,10 @@ class SessionsController < ApplicationController
   end
 
   def create
+    remember = params[:remember_me] == "1"
+
     if user && user.authenticate(params[:password])
-      login(user)
+      login(user, remember)
       respond_to do |format|
         format.json { head :no_content }
         format.html { redirect_back_or_default }

@@ -43,6 +43,20 @@ describe SessionsController do
       controller.send(:current_user).should == user
     end
 
+    it "remembers the user if remember me is chosen" do
+      User.any_instance.should_receive(:set_remember_token)
+      controller.should_receive(:set_remember_cookie)
+      post :create, {email: "test@example.com", password: "example", remember_me: "1"}
+      controller.send(:current_user).should == user
+    end
+
+    it "does not remember the user if remember me is not chosen" do
+      User.any_instance.should_not_receive(:set_remember_token)
+      controller.should_not_receive(:set_remember_cookie)
+      post :create, {email: "test@example.com", password: "example", remember_me: ""}
+      controller.send(:current_user).should == user
+    end
+
     describe "from json" do
       it "returns http success" do
         post :create, {email: "test@example.com", password: "example", format: "json"}

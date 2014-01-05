@@ -54,5 +54,9 @@
     <%= f.label "password_confirmation" %>
     <%= f.password_field "password_confirmation" %>
   </div>
+  <div class="field">
+    <%= check_box_tag :remember_me, "1", true %>
+    <label for="remember_me">Keep me signed in on this computer</label>
+  </div>
   <%= f.submit "Sign up" %>
 <% end %>

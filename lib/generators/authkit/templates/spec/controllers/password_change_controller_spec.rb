@@ -4,7 +4,7 @@ describe PasswordChangeController do
   render_views
 
   let(:token) { "TOKEN" }
-  let(:user) { build(:user, reset_password_token: token) }
+  let(:user) { build(:user, reset_password_token: token, reset_password_token_created_at: Time.now) }
   let(:valid_params) { {token: token, email: user.email} }
   let(:password_params) { valid_params.merge(password: 'newpassword', password_confirmation: 'newpassword') }
 
@@ -31,6 +31,14 @@ describe PasswordChangeController do
     it "requires a valid token" do
       controller.stub(:email_user).and_return(user)
       user.reset_password_token = "OTHER TOKEN"
+      get 'show', valid_params
+      response.should be_redirect
+      flash[:error].should_not be_empty
+    end
+
+    it "requires an unexpired token" do
+      controller.stub(:email_user).and_return(user)
+      user.reset_password_token_created_at = 1.year.ago
       get 'show', valid_params
       response.should be_redirect
       flash[:error].should_not be_empty

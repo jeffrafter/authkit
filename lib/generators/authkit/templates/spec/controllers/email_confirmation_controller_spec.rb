@@ -22,10 +22,20 @@ describe EmailConfirmationController do
       flash[:error].should_not be_empty
     end
 
+    it "requires an unexpired token" do
+      user.confirmation_token = token
+      user.confirmation_token_created_at = 4.days.ago
+      controller.stub(:current_user).and_return(user)
+      get 'show', token: token
+      response.should be_redirect
+      flash[:error].should_not be_empty
+    end
+
     describe "with a valid token" do
       before(:each) do
         user.confirmation_email = "new@example.com"
         user.confirmation_token = token
+        user.confirmation_token_created_at = Time.now
       end
 
       describe "when the confirmation is successful" do

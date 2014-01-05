@@ -60,8 +60,23 @@ class User < ActiveRecord::Base
     self.save!
   end
 
+  def reset_password_token_expired?
+    # TODO reset password tokens expire in 1 day by default
+    self.reset_password_token_created_at.blank? || self.reset_password_token_created_at <= 1.day.ago
+  end
+
+  def confirmation_token_expired?
+    # TODO confirmation tokens expire in 3 days by default
+    self.confirmation_token_created_at.blank? || self.confirmation_token_created_at <= 3.days.ago
+  end
+
+  def remember_token_expired?
+    # TODO remember tokens expire in 1 year by default
+    self.remember_token_created_at.blank? || self.remember_token_created_at <= 1.year.ago
+  end
+
   def send_welcome
-    # TODO: insert your mailer logic here
+    # TODO insert your mailer logic here
     true
   end
 
@@ -89,6 +104,10 @@ class User < ActiveRecord::Base
 
     # TODO: insert your mailer logic here
     true
+  end
+
+  def pending_confirmation?
+    self.confirmation_token.present?
   end
 
   def email_confirmed

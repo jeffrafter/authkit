@@ -4,23 +4,22 @@
   helper_method :logged_in?, :current_user
 
   # It is very unlikely that this exception will be created under normal
-  # circumstances. Unique validations are handled in Rails, but they are
-  # also enforced at the database level to guarantee data integrity. In
-  # certain cases (double-clicking a save link, multiple distributed servers)
-  # it is possible to get past the Rails validation in which case the
-  # database throws an exception.
+  # circumstances. Unique validations are handled in Rails, but they are also
+  # enforced at the database level to guarantee data integrity. In certain
+  # cases (double-clicking a save link, multiple distributed servers) it is
+  # possible to get past the Rails validation in which case the database throws
+  # an exception.
   rescue_from ActiveRecord::RecordNotUnique, with: :record_not_unique
 
   protected
 
-  # This does not currently implement an expiry for the remember token. Although
-  # the user is fetched using id or remember token, these come from a verified
-  # cookie (verified using secure compare) so these database calls do not need
-  # to protect against timing attacks.
+  # The user is fetched using id or remember token but these come from a
+  # verified cookie (verified using secure compare) so these database calls do
+  # not need to protect against timing attacks.
   def current_user
     return @current_user if defined?(@current_user)
     @current_user ||= User.where(id: session[:user_id]).first if session[:user_id]
-    @current_user ||= User.where(remember_token: cookies.signed[:remember]).first unless cookies.signed[:remember].blank?
+    set_current_user_from_remember_token unless @current_user
     session[:user_id] = @current_user.id if @current_user
     session[:time_zone] = @current_user.time_zone if @current_user
     set_time_zone
@@ -40,12 +39,12 @@
     deny_user(nil, login_path) unless logged_in?
   end
 
-  def login(user)
+  def login(user, remember=false)
     reset_session
     @current_user = user
     current_user.track_sign_in(request.remote_ip) if allow_tracking?
-    current_user.set_remember_token
-    set_remember_cookie
+    current_user.set_remember_token if remember
+    set_remember_cookie if remember
     session[:user_id] = current_user.id
     session[:time_zone] = current_user.time_zone
     set_time_zone
@@ -61,6 +60,14 @@
 
   def set_time_zone
     Time.zone = session[:time_zone] if session[:time_zone].present?
+  end
+
+  def set_current_user_from_remember_token
+    token = cookies.signed[:remember]
+    return if token.blank?
+    @current_user = User.where(remember_token: token).first
+    @current_user = nil if @current_user && @current_user.remember_token_expired?
+    @current_user
   end
 
   def set_remember_cookie

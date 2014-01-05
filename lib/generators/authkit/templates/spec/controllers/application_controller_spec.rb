@@ -55,6 +55,20 @@ describe ApplicationController do
       controller.send(:current_user).should == user
     end
 
+    it "doesn't find the current user from the remember cookie if it is expired" do
+      # Setup expired token
+      user.set_remember_token
+      user.remember_token_created_at = 1.year.ago
+      user.save
+
+      # Need to sign the cookie
+      request.env["action_dispatch.secret_token"] = "SECRET"
+      verifier = ActiveSupport::MessageVerifier.new(request.env["action_dispatch.secret_token".freeze])
+      request.cookies[:remember] = verifier.generate(user.remember_token)
+      get :index
+      controller.send(:current_user).should be_nil
+    end
+
     it "sets the time zone" do
       User.any_instance.should_receive(:time_zone).and_return("Pacific Time (US & Canada)")
       get :index, {}, logged_in_session
@@ -122,7 +136,14 @@ describe ApplicationController do
       get :new
       controller.should_receive(:set_remember_cookie)
       user.should_receive(:set_remember_token)
-      controller.send(:login, user)
+      controller.send(:login, user, true)
+    end
+
+    it "does not remember the user using a token and cookie when not requested" do
+      get :new
+      controller.should_not_receive(:set_remember_cookie)
+      user.should_not_receive(:set_remember_token)
+      controller.send(:login, user, false)
     end
 
     it "resets the session" do

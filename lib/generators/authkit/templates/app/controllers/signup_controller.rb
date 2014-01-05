@@ -7,10 +7,12 @@ class SignupController < ApplicationController
   end
 
   def create
+    remember = params[:remember_me] == "1"
+
     @signup = Signup.new(signup_params)
 
     if @signup.save
-      login(@signup.user)
+      login(@signup.user, remember)
       respond_to do |format|
         format.json { head :no_content }
         format.html {

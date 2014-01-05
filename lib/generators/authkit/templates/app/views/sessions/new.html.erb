@@ -9,5 +9,9 @@
     <%= label_tag "password" %>
     <%= password_field_tag "password" %>
   </div>
+  <div class="field">
+    <%= check_box_tag :remember_me, "1", true %>
+    <label for="remember_me">Keep me signed in on this computer</label>
+  </div>
   <%= submit_tag "Login" %>
 <% end %>

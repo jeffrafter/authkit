@@ -71,6 +71,35 @@ describe User do
     end
   end
 
+  describe "token expiry" do
+    it "should expire reset password tokens" do
+      user = User.new
+      user.reset_password_token_expired?.should == true
+      user.reset_password_token_created_at = 10.minutes.ago
+      user.reset_password_token_expired?.should == false
+      user.reset_password_token_created_at = 1.day.ago
+      user.reset_password_token_expired?.should == true
+    end
+
+    it "should expire confirmation tokens" do
+      user = User.new
+      user.confirmation_token_expired?.should == true
+      user.confirmation_token_created_at = 2.days.ago
+      user.confirmation_token_expired?.should == false
+      user.confirmation_token_created_at = 3.days.ago
+      user.confirmation_token_expired?.should == true
+    end
+
+    it "should expire remember tokens" do
+      user = User.new
+      user.remember_token_expired?.should == true
+      user.remember_token_created_at = 30.days.ago
+      user.remember_token_expired?.should == false
+      user.remember_token_created_at = 1.years.ago
+      user.remember_token_expired?.should == true
+    end
+  end
+
   describe "display name" do
     it "has a display name" do
       user = User.new(first_name: "Boss", last_name: "Hogg")
@@ -177,6 +206,16 @@ describe User do
       user.confirmation_token = "TOKEN"
       user.email_confirmed.should == false
       user.should have(1).errors_on(:email)
+    end
+
+    it "is pending confirmation if there is a confirmation token" do
+      user = build(:user, confirmation_token: "TOKEN")
+      user.should be_pending_confirmation
+    end
+
+    it "there is no pending confirmation if there is not a confirmation token" do
+      user = build(:user, confirmation_token: nil)
+      user.should_not be_pending_confirmation
     end
   end
 
