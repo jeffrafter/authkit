@@ -34,7 +34,7 @@ class EmailConfirmationController < ApplicationController
   # lock the account.
   def require_token
     verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
-    valid = params[:token].present?
+    valid = params[:token].present? && current_user.confirmation_token.present?
     valid = valid && verifier.send(:secure_compare, params[:token], current_user.confirmation_token)
     valid = valid && !current_user.confirmation_token_expired?
     deny_user("Invalid token", root_path) unless valid
