@@ -61,6 +61,7 @@ namespace :generator do
   desc "Run the #{gem_name} generator"
   task gem_name do
     system "cd spec/tmp/sample && rails g #{gem_name}:install --force && rake db:migrate db:test:prepare"
+    system "cd spec/tmp/sample && rails g #{gem_name}:oauth --force && rake db:migrate db:test:prepare"
   end
 
 end

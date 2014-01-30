@@ -1,0 +1,13 @@
+<ul class="connected">
+  <% current_user.auths.each do |auth| %>
+    <li class="auth <%= auth.provider %>">
+      <span class="connect"><span class="icon"></span><%= auth.uid %></span>
+    </li>
+  <% end %>
+</ul>
+
+<ul class="connect">
+  <li class="auth google_oauth2">
+    <a href="/auth/google_oauth2" alt="Connect to Google"><span class="connect"><span class="icon"></span>Click here to connect</span></a>
+  </li>
+</ul>
