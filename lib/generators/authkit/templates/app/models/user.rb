@@ -1,4 +1,5 @@
 require 'email_format_validator'
+require 'username_format_validator'
 
 class User < ActiveRecord::Base
   has_secure_password
@@ -24,7 +25,7 @@ class User < ActiveRecord::Base
 
   # Whenever the password is set, validate (not only on create)
   validates :password, presence: true, confirmation: true, length: {minimum: 6}, if: :password_set?
-  validates :username, presence: true, uniqueness: {case_sensitive: false}
+  validates :username, username_format: true, presence: true, uniqueness: { case_sensitive: false }
   validates :email, email_format: true, presence: true, uniqueness: true
   validates :confirmation_email, email_format: true, presence: true
 

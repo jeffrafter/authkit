@@ -54,6 +54,7 @@ module Authkit
       template "spec/controllers/email_confirmation_controller_spec.rb", "spec/controllers/email_confirmation_controller_spec.rb"
 
       template "lib/email_format_validator.rb", "lib/email_format_validator.rb"
+      template "lib/username_format_validator.rb", "lib/username_format_validator.rb"
 
       # Don't treat these like templates
       copy_file "app/views/signup/new.html.erb", "app/views/signup/new.html.erb"

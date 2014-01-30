@@ -38,6 +38,6 @@ class SessionsController < ApplicationController
     return @user if defined?(@user)
     username_or_email = "#{params[:email]}".downcase
     return if username_or_email.blank?
-    @user = User.where('username = ? OR email = ?', username_or_email, username_or_email).first
+    @user = User.where('LOWER(username) = ? OR email = ?', username_or_email, username_or_email).first
   end
 end
