@@ -32,7 +32,7 @@ class User < ActiveRecord::Base
   # Confirm emails check for existing emails for uniqueness as a convenience
   validate  :confirmation_email_uniqueness, if: :confirmation_email_set?
 
-  def display_name
+  def full_name
     [first_name, last_name].compact.join(" ")
   end
 
