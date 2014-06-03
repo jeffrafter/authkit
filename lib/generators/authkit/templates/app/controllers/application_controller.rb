@@ -87,6 +87,7 @@
     session[:return_url] = request.fullpath
     respond_to do |format|
       format.json { render(status: 403, nothing: true) }
+      format.text { redirect_to(location) }
       format.html do
         flash[:error] = message || "Sorry, you must be logged in to do that"
         redirect_to(location)
