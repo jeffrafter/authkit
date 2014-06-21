@@ -22,13 +22,6 @@ describe User do
     user.email.should == "sir@capsalock.com"
   end
 
-  it "knows if the password was set" do
-    user = User.new
-    user.send(:password_set?).should == false
-    user.password = "example"
-    user.send(:password_set?).should == true
-  end
-
   describe "validations" do
     describe "unique" do
       before(:each) do
@@ -103,9 +96,9 @@ describe User do
   describe "display name" do
     it "has a display name" do
       user = User.new(first_name: "Boss", last_name: "Hogg")
-      user.display_name.should == "Boss Hogg"
+      user.full_name.should == "Boss Hogg"
       user.first_name = nil
-      user.display_name.should == "Hogg"
+      user.full_name.should == "Hogg"
     end
   end
 

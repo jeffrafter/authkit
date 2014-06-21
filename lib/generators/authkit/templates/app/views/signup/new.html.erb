@@ -1,62 +1,74 @@
 <h1>Sign Up</h1>
 
-<% if @signup.errors.any? %>
-  <div id="error_explanation">
-    <div class="alert alert-error">
-      The form contains <%= pluralize(@signup.errors.count, "error") %>.
-    </div>
-    <ul>
-    <% @signup.errors.full_messages.each do |msg| %>
-      <li>* <%= msg %></li>
-    <% end %>
-    </ul>
-  </div>
+<% if oauth? %>
+<div class="providers">
+  <%% providers.each do |provider| %>
+    <a href="/auth/<%%= provider %>?signup=1" class="oauth <%%= provider %>"><i class="fa <%%= provider_font_awesome_icon(provider) %>"></i> <%%= provider_formatted_name(provider) %> Account</a>
+  <%% end %>
+</div>
+
+<div class="or">
+  or sign up using your email
+</div>
 <% end %>
 
-<%= form_for @signup, url: signup_path do |f| %>
+<%% if @signup.errors.any? %>
+  <div id="error_explanation">
+    <div class="alert alert-error">
+      The form contains <%%= pluralize(@signup.errors.count, "error") %>.
+    </div>
+    <ul>
+    <%% @signup.errors.full_messages.each do |msg| %>
+      <li>* <%%= msg %></li>
+    <%% end %>
+    </ul>
+  </div>
+<%% end %>
+
+<%%= form_for @signup, url: signup_path do |f| %>
   <div class="field">
-    <%= f.label "first_name" %>
-    <%= f.text_field "first_name" %>
+    <%%= f.label "first_name" %>
+    <%%= f.text_field "first_name" %>
   </div>
   <div class="field">
-    <%= f.label "last_name" %>
-    <%= f.text_field "last_name" %>
+    <%%= f.label "last_name" %>
+    <%%= f.text_field "last_name" %>
   </div>
   <div class="field">
-    <%= f.label "bio" %>
-    <%= f.text_area "bio" %>
+    <%%= f.label "bio" %>
+    <%%= f.text_area "bio" %>
   </div>
   <div class="field">
-    <%= f.label "website" %>
-    <%= f.text_field "website" %>
+    <%%= f.label "website" %>
+    <%%= f.text_field "website" %>
   </div>
   <div class="field">
-    <%= f.label "phone_number" %>
-    <%= f.text_field "phone_number" %>
+    <%%= f.label "phone_number" %>
+    <%%= f.text_field "phone_number" %>
   </div>
   <div class="field">
-    <%= f.label "time_zone" %>
-    <%= f.time_zone_select('time_zone', ActiveSupport::TimeZone.us_zones, :default => "Pacific Time (US & Canada)") %>
+    <%%= f.label "time_zone" %>
+    <%%= f.time_zone_select('time_zone', ActiveSupport::TimeZone.us_zones, :default => "Pacific Time (US & Canada)") %>
   </div>
   <div class="field">
-    <%= f.label "email" %>
-    <%= f.text_field "email" %>
+    <%%= f.label "email" %>
+    <%%= f.text_field "email" %>
   </div>
   <div class="field">
-    <%= f.label "username" %>
-    <%= f.text_field "username" %>
+    <%%= f.label "username" %>
+    <%%= f.text_field "username" %>
   </div>
   <div class="field">
-    <%= f.label "password" %>
-    <%= f.password_field "password" %>
+    <%%= f.label "password" %>
+    <%%= f.password_field "password" %>
   </div>
   <div class="field">
-    <%= f.label "password_confirmation" %>
-    <%= f.password_field "password_confirmation" %>
+    <%%= f.label "password_confirmation" %>
+    <%%= f.password_field "password_confirmation" %>
   </div>
   <div class="field">
-    <%= check_box_tag :remember_me, "1", true %>
+    <%%= check_box_tag :remember_me, "1", true %>
     <label for="remember_me">Keep me signed in on this computer</label>
   </div>
-  <%= f.submit "Sign up" %>
-<% end %>
+  <%%= f.submit "Sign up" %>
+<%% end %>

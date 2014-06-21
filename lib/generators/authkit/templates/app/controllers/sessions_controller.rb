@@ -1,4 +1,8 @@
 class SessionsController < ApplicationController
+  <% if oauth? %>
+  include AuthsHelper
+  <% end %>
+
   # Login
   def new
   end

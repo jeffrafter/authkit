@@ -35,24 +35,24 @@ describe Signup do
 
     describe "when valid" do
       it "should persist" do
-        signup.user = User.new
+        signup.user = build(:user)
         signup.should_receive(:valid?).and_return(true)
         signup.user.should_receive(:save!)
-        signup.user.should_receive(:send_confirmation)
         signup.save
       end
 
       it "should send the welcome" do
-        signup.user = User.new
+        signup.user = build(:user)
+        signup.email = signup.user.email
         signup.should_receive(:valid?).and_return(true)
         signup.stub(:persist!)
-        signup.user.should_receive(:send_confirmation)
         signup.user.should_receive(:send_welcome)
         signup.save
       end
 
       it "should send the confirmation" do
-        signup.user = User.new
+        signup.user = build(:user)
+        signup.email = signup.user.email
         signup.should_receive(:valid?).and_return(true)
         signup.stub(:persist!)
         signup.user.should_receive(:send_confirmation)
@@ -82,12 +82,13 @@ describe Signup do
   end
 
   it "should create a new user" do
-    user = User.new
+    user = build(:user)
     User.should_receive(:new).and_return(user)
     user.stub(:valid?).and_return(true)
     user.should_receive(:save!)
     user.should_receive(:send_confirmation)
     signup.stub(:valid?).and_return(true)
+    signup.email = "new@example.com"
     signup.save
   end
 

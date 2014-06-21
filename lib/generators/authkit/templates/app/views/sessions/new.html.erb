@@ -1,17 +1,35 @@
 <h1>Sign In</h1>
 
-<%= form_tag(login_path, method: "post") do %>
+<%%= form_tag(login_path, method: "post") do %>
   <div class="field">
-    <%= label_tag "email", "Email or username" %>
-    <%= text_field_tag "email" %>
+    <%%= label_tag "email", "Email or username" %>
+    <%%= text_field_tag "email" %>
   </div>
   <div class="field">
-    <%= label_tag "password" %>
-    <%= password_field_tag "password" %>
+    <%%= label_tag "password" %>
+    <%%= password_field_tag "password" %>
   </div>
   <div class="field">
-    <%= check_box_tag :remember_me, "1", true %>
+    <%%= check_box_tag :remember_me, "1", true %>
     <label for="remember_me">Keep me signed in on this computer</label>
   </div>
-  <%= submit_tag "Login" %>
+  <div class="login">
+    <%%= submit_tag "Login" %>
+  </div>
+
+  <div class="forgot">
+    <a href="/password/reset" class="forgot">Forgot your password?</a>
+  </div>
+<%% end %>
+
+<% if oauth? %>
+<div class="or">
+  or sign in using a connected account
+</div>
+
+<div class="providers">
+  <%% providers.each do |provider| %>
+    <a href="/auth/<%%= provider %>?login=1" class="oauth <%%= provider %>"><i class="fa <%%= provider_font_awesome_icon(provider) %>"></i> <%%= provider_formatted_name(provider) %> Account</a>
+  <%% end %>
+</div>
 <% end %>

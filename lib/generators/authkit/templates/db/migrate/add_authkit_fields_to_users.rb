@@ -50,6 +50,8 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
     add_column :users, :unlock_token, :string
     add_column :users, :unlock_token_created_at, :datetime
 
+    add_column :users, :suspended_at, :datetime
+
     # Make sure the validations are enforced
     add_index :users, :email, :unique => true
     add_index :users, :username, :unique => true

@@ -1,0 +1,39 @@
+<h1>One more step to complete your account</h1>
+
+<% if @user.errors.any? %>
+  <div id="error_explanation">
+    <div class="alert alert-error">
+      The form contains <%= pluralize(@user.errors.count, "error") %>.
+    </div>
+    <ul>
+    <% @user.errors.full_messages.each do |msg| %>
+      <li>* <%= msg %></li>
+    <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_for @user do |f| %>
+  <div class="field">
+    <%= f.label "first_name" %>
+    <%= f.text_field "first_name" %>
+  </div>
+  <div class="field">
+    <%= f.label "last_name" %>
+    <%= f.text_field "last_name" %>
+  </div>
+  <div class="field">
+    <%= f.label "email" %>
+    <%= f.text_field "confirmation_email" %>
+  </div>
+  <div class="field">
+    <%= f.label "password" %>
+    <%= f.password_field "password" %>
+  </div>
+  <div class="field">
+    <%= f.label "password_confirmation" %>
+    <%= f.password_field "password_confirmation" %>
+  </div>
+  <%= f.submit "Finish" %>
+<% end %>
+

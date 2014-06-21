@@ -1,36 +1,47 @@
 require 'email_format_validator'
 require 'username_format_validator'
+require 'full_name_splitter'
 
 class User < ActiveRecord::Base
-  has_secure_password
-  has_one_time_password
+  <% if oauth? %>
+  has_many :auths
+  <% end %>
 
-  # Uncomment if you are not using strong params (note, that email is only permitted on
-  # signup and confirmation_email is only permitted on update):
-  #
-  # attr_accessible :username,
-  #  :email,
-  #  :confirmation_email,
-  #  :password,
-  #  :password_confirmation,
-  #  :time_zone,
-  #  :first_name,
-  #  :last_name,
-  #  :bio,
-  #  :website,
-  #  :phone_number
+  has_secure_password validations: false
+  has_one_time_password
 
   before_validation :downcase_email
   before_validation :set_confirmation_email
 
-  # Whenever the password is set, validate (not only on create)
-  validates :password, presence: true, confirmation: true, length: {minimum: 6}, if: :password_set?
-  validates :username, username_format: true, presence: true, uniqueness: { case_sensitive: false }
-  validates :email, email_format: true, presence: true, uniqueness: true
-  validates :confirmation_email, email_format: true, presence: true
+  validates :password, confirmation: true, length: { minimum: 6 }, if: :has_password?
+  validates :username, username_format: true, uniqueness: { case_sensitive: false, allow_nil: true }
+  validates :email, email_format: true, uniqueness: { allow_nil: true }
+  validates :confirmation_email, email_format: true
+
+  validates :password, presence: true, unless: :has_auth_or_skip_password_validation?
+  validates :username, presence: true, unless: :has_auth?
+  validates :email, presence: true, unless: :has_auth?
+  validates :confirmation_email, presence: true, unless: :has_auth?
 
   # Confirm emails check for existing emails for uniqueness as a convenience
   validate  :confirmation_email_uniqueness, if: :confirmation_email_set?
+
+  def suspended?
+    self.suspended_at.present?
+  end
+
+  def incomplete?
+    username.blank? || email.blank? || password_digest.blank?
+  end
+
+  def full_name=(value)
+    return if value.blank?
+
+    splitter = FullNameSplitter.new(value)
+    self.first_name = splitter.first_name
+    self.last_name = splitter.last_name
+    self.full_name
+  end
 
   def full_name
     [first_name, last_name].compact.join(" ")
@@ -142,7 +153,23 @@ class User < ActiveRecord::Base
 
   protected
 
-  def password_set?
+  def has_auth?
+    <% if oauth? %>
+    self.auths.first.present?
+    <% else %>
+    false
+    <% end %>
+  end
+
+  def has_auth_or_skip_password_validation?
+    has_auth? || skip_password_validation?
+  end
+
+  def skip_password_validation?
+    self.password.blank? && self.password_digest.present?
+  end
+
+  def has_password?
     self.password.present?
   end
 
@@ -168,5 +195,4 @@ class User < ActiveRecord::Base
   def confirmation_email_uniqueness
     errors.add(:confirmation_email, :taken, value: email) if User.where('email = ?', confirmation_email).count > 0
   end
-
 end

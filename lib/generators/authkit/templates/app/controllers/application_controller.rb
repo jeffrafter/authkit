@@ -37,6 +37,11 @@
 
   def require_login
     deny_user(nil, login_path) unless logged_in?
+    deny_user("Your account has been suspended, please contact support", login_path) if logged_in? && current_user.suspended?
+  end
+
+  def require_completed_login
+    redirect_to users_complete_path if current_user.incomplete?
   end
 
   def login(user, remember=false)

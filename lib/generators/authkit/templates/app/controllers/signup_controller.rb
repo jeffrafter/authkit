@@ -1,4 +1,8 @@
 class SignupController < ApplicationController
+  <% if oauth? %>
+  include AuthsHelper
+  <% end %>
+
   respond_to :html, :json
 
   # Create a new Signup form model (found in app/forms/signup.rb)

@@ -7,8 +7,86 @@ module Authkit
 
     desc "Add oauth support to your Rails app"
 
+    hook_for :amazon, type: :boolean
+    hook_for :facebook, type: :boolean
+    hook_for :flickr, type: :boolean
+    hook_for :foursquare, type: :boolean
+    hook_for :github, type: :boolean
+    hook_for :google, type: :boolean
+    hook_for :instagram, type: :boolean
+    hook_for :linkedin, type: :boolean
+    hook_for :paypal, type: :boolean
+    hook_for :soundcloud, type: :boolean
+    hook_for :tumblr, type: :boolean
+    hook_for :twitter, type: :boolean
+    hook_for :vimeo, type: :boolean
+    hook_for :all, type: :boolean
+
     def self.source_root
       @source_root ||= File.join(File.dirname(__FILE__), 'templates')
+    end
+
+    def oauth?
+      true
+    end
+
+    def provider?(service)
+      options[service] || options[:all]
+    end
+
+    def providers
+      result = []
+      %w(amazon
+         facebook
+         flickr
+         foursquare
+         github
+         google
+         instagram
+         linkedin
+         paypal
+         soundcloud
+         tumblr
+         twitter
+         vimeo).each do |provider|
+        result << provider.to_sym if provider?(provider.to_sym)
+      end
+    end
+
+    def formatted_providers
+      {
+        amazon: "Amazon",
+        facebook: "Facebook",
+        flickr: "Flickr",
+        foursquare: "Foursquare",
+        github: "GitHub",
+        google: "Google",
+        instagram: "Instagram",
+        linkedin: "LinkedIn",
+        paypal: "Paypal",
+        soundcloud: "SoundCloud",
+        tumblr: "Tumblr",
+        twitter: "Twitter",
+        vimeo: "Vimeo"
+      }
+    end
+
+    def font_awesome_icons
+      {
+        amazon: "amazon",
+        facebook: "facebook",
+        flickr: "flickr",
+        foursquare: "foursquare",
+        github: "github",
+        google: "google",
+        instagram: "instagram",
+        linkedin: "linkedin",
+        paypal: "paypal",
+        soundcloud: "soundcloud",
+        tumblr: "tumblr",
+        twitter: "twitter",
+        vimeo: "vimeo"
+      }
     end
 
     def generate_authkit
@@ -36,18 +114,21 @@ module Authkit
       route "get   '/connect', to: 'auths#connect', as: :connect"
       route "get   '/auth/:provider/callback', to: 'auths#callback', as: :callback"
       route "get   '/auth/failure', to: 'auths#failure', as: :failure"
-      route "post  '/auth/disconnect', to: 'auths#disconnect', as: :disconnect"
+      route "get   '/auth/disconnect/:id', to: 'auths#disconnect', as: :disconnect"
 
       gem 'omniauth'
-      gem 'omniauth-google-oauth2'
-      gem 'omniauth-facebook'
-      gem 'omniauth-twitter'
-      gem 'omniauth-tumblr'
-      gem 'omniauth-soundcloud'
+      gem 'omniauth-google-oauth2' if provider?(:google)
+      gem 'omniauth-facebook' if provider?(:facebook)
+      gem 'omniauth-twitter' if provider?(:twitter)
+      gem 'omniauth-tumblr' if provider?(:tumblr)
+      gem 'omniauth-soundcloud' if provider?(:soundcloud)
 
       # Support for google client apis
-      gem 'google-api-client', :require => 'google/api_client'
-      gem 'faraday_middleware'
+      if provider?(:google)
+        gem 'google-api-client', :require => 'google/api_client'
+        gem 'faraday', '~> 0.9.0'
+        gem 'faraday_middleware'
+      end
     end
 
     def self.next_migration_number(dirname)

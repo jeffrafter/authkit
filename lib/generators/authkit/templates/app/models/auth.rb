@@ -1,58 +1,50 @@
 class Auth < ActiveRecord::Base
   belongs_to :user
 
-  def display_name
-    if google?
-      self.parsed_env["info"]["name"] rescue "Youtube"
-    elsif soundcloud?
-      self.parsed_env["info"]["name"] rescue "SoundCloud"
+  def full_name
+    self.parsed_env["info"]["name"] rescue formatted_provider
+  end
+
+  def first_name
+    self.parsed_env["info"]["first_name"] rescue nil
+  end
+
+  def last_name
+    self.parsed_env["info"]["last_name"] rescue nil
+  end
+
+  def image_url
+    if <%= (providers - [:tumblr]).map{|p| "#{p}?"}.join(" || ") %>
+      self.parsed_env["info"]["image"] rescue nil
+    <% if provider?(:tumblr) %>elsif tumblr?
+      self.parsed_env["info"]["avatar"] rescue nil<% end %>
     end
   end
 
-  def display_image_url
-    if google? || soundcloud?
-      self.parsed_env["info"]["image"] rescue nil
-    end
-  end
-
-  def display_url
-    if google? || soundcloud?
-      self.parsed_env["info"]["image"] rescue nil
-    end
+  def username
+    <% if provider?(:google) %># Google does not provide a username<% end %>
+    self.parsed_env["info"]["nickname"] rescue nil
   end
 
   def expired?
     self.token_expires_at && self.token_expires_at < Time.now
   end
 
-  def twitter?
-    provider == "twitter"
+  <% providers.each do |provider| %>
+  def <%= provider %>?
+    provider == "<%= provider %>"
   end
-
-  def facebook?
-    provider == "facebook"
-  end
-
-  def tumblr?
-    provider == "tumblr"
-  end
-
-  def google?
-    provider == "google_oauth2"
-  end
-
-  def soundcloud?
-    provider == "soundcloud"
-  end
+  <% end %>
 
   def refresh!
     return if refresh_token.blank?
-    refresh_google if google?
+    <% if provider?(:google) %>refresh_google if google?<% end%>
     save!
   end
 
   protected
 
+  <% if provider?(:google) %>
   # https://github.com/intridea/omniauth-oauth2/issues/40#issuecomment-21275075
   def refresh_google
     conn = Faraday.new('https://accounts.google.com') do |faraday|
@@ -73,6 +65,13 @@ class Auth < ActiveRecord::Base
 
     self.token = body['access_token'] if body['access_token']
     self.token_expires_at = Time.now.utc + body['expires_in'].to_i.seconds
+  end
+  <% end %>
+
+  def formatted_provider
+    <% providers.each do |provider| %>
+    return <%= formatted_providers[provider] %> if <%= provider %>?
+    <% end %>
   end
 
   def parsed_env
