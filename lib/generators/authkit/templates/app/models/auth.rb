@@ -70,7 +70,7 @@ class Auth < ActiveRecord::Base
 
   def formatted_provider
     <% providers.each do |provider| %>
-    return <%= formatted_providers[provider] %> if <%= provider %>?
+    return "<%= formatted_providers[provider] %>" if <%= provider %>?
     <% end %>
   end
 

@@ -2,7 +2,7 @@ module AuthsHelper
   def providers
     result = []
     <% providers.each do |provider| %>
-    result << :<%= formatted_providers[provider] %> 
+    result << :<%= provider %> 
     <% end %>
     result
   end

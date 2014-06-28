@@ -31,7 +31,7 @@ class AuthsController < ApplicationController
         @auth ||= current_user.auths.build(auth_params)
 
         if current_user.save
-          redirect_to accounts_path
+          redirect_to account_path
         else
           flash[:error] = "Sorry, there was an error connecting this account"
           redirect_to accounts_path
@@ -52,27 +52,18 @@ class AuthsController < ApplicationController
 
         if signup.save
           login(signup.user)
-          respond_to do |format|
-            format.json { head :no_content }
-            format.html {
-              redirect_to account_path
-            }
-          end
+          redirect_to account_path
         else
-          respond_to do |format|
-            format.json { render json: { status: 'error', errors: signup.errors }.to_json, status: 422 }
-            format.html {
-              flash[:error] = "Sorry, there was an error connecting this account (#{@signup.errors.full_messages.to_sentence})"
-              redirect_to signup_path
-            }
-          end
+          flash[:error] = "Sorry, there was an error connecting this account (#{@signup.errors.full_messages.to_sentence})"
+          redirect_to signup_path
         end
       end
     end
   end
 
   def disconnect
-    @auth = current_user.auths.find(params[:id])
+    # TODO: you may want to change this lookup to use uid and provider
+    @auth = current_user.auths.where(params[:id])
     @auth.destroy
     respond_to do |format|
       format.json { head :no_content }
@@ -84,7 +75,13 @@ class AuthsController < ApplicationController
 
   def failure
     flash[:error] = "Sorry, there was an error connecting this account: #{params[:message]}"
-    redirect_to settings_path
+    if connecting?
+      redirect_to settings_path
+    elsif signing_up?
+      redirect_to signup_path
+    else 
+      redirect_to login_path
+    end
   end
 
   protected

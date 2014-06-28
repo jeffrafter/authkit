@@ -130,9 +130,6 @@ module Authkit
       route "patch '/account', to: 'users#update'"
       route "get   '/account', to: 'users#edit', as: :user"
 
-      route "resources :sessions, only: [:new, :create, :destroy]"
-      route "resources :users, only: [:create]"
-
       # Support for has_secure_password and has_one_time_password
       gem "active_model_otp"
       gem "bcrypt-ruby", '~> 3.1.2'
