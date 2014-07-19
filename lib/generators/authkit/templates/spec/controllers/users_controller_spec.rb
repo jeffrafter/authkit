@@ -3,7 +3,7 @@ require 'spec_helper'
 describe UsersController do
   render_views
 
-  let(:user) { create(:user, email: "test@example.com") }
+  let(:user) { create(:user) }
   let(:user_params) { attributes_for(:user) }
   let(:invalid_params) { user_params.merge(password: 'newpassword', password_confirmation: 'wrongpassword') }
   let(:logged_in_session) { { user_id: user.id } }
@@ -36,12 +36,12 @@ describe UsersController do
           user.email = user.confirmation_email
           user.confirmation_email = nil
           user.should_not_receive(:send_confirmation)
-          put :update, {user: user_params.merge(confirmation_email: "test@example.com")}, logged_in_session
+          put :update, {user: user_params.merge(confirmation_email: user.email)}, logged_in_session
         end
 
         it "doesn't reconfirm if the confirmation email is unchanged" do
           user.should_not_receive(:send_confirmation)
-          put :update, {user: user_params.merge(confirmation_email: "test@example.com")}, logged_in_session
+          put :update, {user: user_params.merge(confirmation_email: user.email)}, logged_in_session
         end
 
         it "confirms the confirmation email" do

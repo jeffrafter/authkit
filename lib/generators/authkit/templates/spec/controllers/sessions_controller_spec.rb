@@ -3,7 +3,7 @@ require 'spec_helper'
 describe SessionsController do
   render_views
 
-  let(:user) { create(:user, email: "test@example.com") }
+  let(:user) { create(:user) }
   let(:logged_in_session) { { user_id: user.id } }
 
   describe "GET 'new'" do
@@ -19,13 +19,13 @@ describe SessionsController do
     end
 
     it "redirects the user" do
-      post :create, {email: "test@example.com", password: "example"}
+      post :create, {email: user.email, password: "example"}
       response.should be_redirect
     end
 
     it "authenticates if it finds the user" do
       User.any_instance.should_receive(:authenticate).and_return(true)
-      post :create, {email: "test@example.com", password: "example"}
+      post :create, {email: user.email, password: "example"}
     end
 
     it "does not authenticate if it does not find a user" do
@@ -35,31 +35,31 @@ describe SessionsController do
 
     it "downcases the email or user name" do
       User.any_instance.should_receive(:authenticate).and_return(true)
-      post :create, {email: "TEST@EXAMPLE.COM", password: "example"}
+      post :create, {email: user.email, password: "example"}
     end
 
     it "signs the user in" do
-      post :create, {email: "test@example.com", password: "example"}
+      post :create, {email: user.email, password: "example"}
       controller.send(:current_user).should == user
     end
 
     it "remembers the user if remember me is chosen" do
       User.any_instance.should_receive(:set_remember_token)
       controller.should_receive(:set_remember_cookie)
-      post :create, {email: "test@example.com", password: "example", remember_me: "1"}
+      post :create, {email: user.email, password: "example", remember_me: "1"}
       controller.send(:current_user).should == user
     end
 
     it "does not remember the user if remember me is not chosen" do
       User.any_instance.should_not_receive(:set_remember_token)
       controller.should_not_receive(:set_remember_cookie)
-      post :create, {email: "test@example.com", password: "example", remember_me: ""}
+      post :create, {email: user.email, password: "example", remember_me: ""}
       controller.send(:current_user).should == user
     end
 
     describe "from json" do
       it "returns http success" do
-        post :create, {email: "test@example.com", password: "example", format: "json"}
+        post :create, {email: user.email, password: "example", format: "json"}
         response.should be_success
       end
     end
@@ -67,24 +67,24 @@ describe SessionsController do
     describe "with invalid password" do
       describe "from html" do
         it "sets the flash message" do
-          post :create, {email: "test@example.com", password: "wrongpassword"}
+          post :create, {email: user.email, password: "wrongpassword"}
           flash.now[:error].should_not be_empty
         end
 
         it "renders the new page" do
-          post :create, {email: "test@example.com", password: "wrongpassword"}
+          post :create, {email: user.email, password: "wrongpassword"}
           response.should render_template(:new)
         end
       end
 
       describe "from json" do
         it "returns an error" do
-          post :create, {email: "test@example.com", password: "wrongpassword", format: "json"}
+          post :create, {email: user.email, password: "wrongpassword", format: "json"}
           response.body.should =~ /invalid user name or password/i
         end
 
         it "returns forbidden status" do
-          post :create, {email: "test@example.com", password: "wrongpassword", format: "json"}
+          post :create, {email: user.email, password: "wrongpassword", format: "json"}
           response.code.should == '422'
         end
       end

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe PasswordResetController do
   render_views
 
-  let(:user) { create(:user, email: "test@example.com") }
+  let(:user) { create(:user) }
 
   describe "GET 'show'" do
     it "returns http success" do
@@ -18,23 +18,23 @@ describe PasswordResetController do
     end
 
     it "redirects the user" do
-      post :create, {email: "test@example.com"}
+      post :create, {email: user.email}
       response.should be_redirect
     end
 
     it "finds the user by the email or user name" do
-      post :create, {email: "test@example.com"}
+      post :create, {email: user.email}
       controller.send(:user).should == user
     end
 
     it "logs any current user out if it finds the user" do
       controller.should_receive(:logout)
-      post :create, {email: "test@example.com"}
+      post :create, {email: user.email}
     end
 
     it "resets the password if it finds the user" do
       User.any_instance.should_receive(:send_reset_password).and_return(true)
-      post :create, {email: "test@example.com"}
+      post :create, {email: user.email}
     end
 
     it "does not reset the password if it does not find a user" do
@@ -44,12 +44,12 @@ describe PasswordResetController do
 
     it "downcases the email or user name" do
       User.any_instance.should_receive(:send_reset_password).and_return(true)
-      post :create, {email: "TEST@EXAMPLE.COM"}
+      post :create, {email: user.email.upcase}
     end
 
     describe "from json" do
       it "returns http success" do
-        post :create, {email: "test@example.com", format: "json"}
+        post :create, {email: user.email, format: "json"}
         response.should be_success
       end
     end

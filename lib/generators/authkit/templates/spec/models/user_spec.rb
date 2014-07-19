@@ -25,7 +25,7 @@ describe User do
   describe "validations" do
     describe "unique" do
       before(:each) do
-        create(:user, email: "test@example.com")
+        create(:user)
       end
       <% if username? %>it { should validate_uniqueness_of(:username) }
       <% end %>it { should validate_uniqueness_of(:email) }
@@ -33,7 +33,7 @@ describe User do
         user = build(:user, email: "old@example.com")
         user.confirmation_email = "new@example.com"
         user.should be_valid
-        user.confirmation_email = "test@example.com"
+        user.confirmation_email = user.email
         user.should_not be_valid
       end
     end
