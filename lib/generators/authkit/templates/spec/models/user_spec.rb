@@ -30,10 +30,11 @@ describe User do
       <% if username? %>it { should validate_uniqueness_of(:username) }
       <% end %>it { should validate_uniqueness_of(:email) }
       it "validates the uniqueness of the the confirmation email" do
+        existing_user = create(:user)
         user = build(:user, email: "old@example.com")
         user.confirmation_email = "new@example.com"
         user.should be_valid
-        user.confirmation_email = user.email
+        user.confirmation_email = existing_user.email
         user.should_not be_valid
       end
     end

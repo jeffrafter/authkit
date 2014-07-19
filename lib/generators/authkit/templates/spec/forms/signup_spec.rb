@@ -69,13 +69,13 @@ describe Signup do
 
       it "should not send the welcome" do
         signup.should_receive(:valid?).and_return(false)
-        signup.should_not_receive(:send_welcome)
+        signup.should_not_receive(:send_welcome!)
         signup.save
       end
 
       it "should not send the confirmation" do
         signup.should_receive(:valid?).and_return(false)
-        signup.should_not_receive(:send_confirmation)
+        signup.should_not_receive(:send_confirmation!)
         signup.save
       end
     end
