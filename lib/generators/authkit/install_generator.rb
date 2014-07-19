@@ -11,6 +11,7 @@ module Authkit
       @source_root ||= File.join(File.dirname(__FILE__), 'templates')
     end
 
+    class_option :username, type: :boolean, default: true
     class_option :oauth, type: :boolean
     class_option :amazon, type: :boolean
     class_option :facebook, type: :boolean
@@ -82,7 +83,7 @@ module Authkit
       template "spec/controllers/email_confirmation_controller_spec.rb", "spec/controllers/email_confirmation_controller_spec.rb"
 
       template "lib/email_format_validator.rb", "lib/email_format_validator.rb"
-      template "lib/username_format_validator.rb", "lib/username_format_validator.rb"
+      template "lib/username_format_validator.rb", "lib/username_format_validator.rb" if username?
       template "lib/full_name_splitter.rb", "lib/full_name_splitter.rb"
 
       template "config/initializers/omniauth.rb", "config/initializers/omniauth.rb" if oauth?
@@ -90,12 +91,11 @@ module Authkit
       template "app/views/signup/new.html.erb", "app/views/signup/new.html.erb"
       template "app/views/sessions/new.html.erb", "app/views/sessions/new.html.erb"
 
-      # Don't treat these like templates
-      copy_file "app/views/users/edit.html.erb", "app/views/users/edit.html.erb"
-      copy_file "app/views/users/complete.html.erb", "app/views/users/complete.html.erb"
-      copy_file "app/views/password_reset/show.html.erb", "app/views/password_reset/show.html.erb"
-      copy_file "app/views/password_change/show.html.erb", "app/views/password_change/show.html.erb"
-      copy_file "app/views/auths/connect.html.erb", "app/views/auths/connect.html.erb" if oauth?
+      template "app/views/users/edit.html.erb", "app/views/users/edit.html.erb"
+      template "app/views/users/complete.html.erb", "app/views/users/complete.html.erb"
+      template "app/views/password_reset/show.html.erb", "app/views/password_reset/show.html.erb"
+      template "app/views/password_change/show.html.erb", "app/views/password_change/show.html.erb"
+      template "app/views/auths/connect.html.erb", "app/views/auths/connect.html.erb" if oauth?
 
       # We don't want to overwrite this file and we may have a protected section so we want it at the bottom
       insert_at_end_of_class "app/controllers/application_controller.rb", "app/controllers/application_controller.rb"
@@ -159,6 +159,10 @@ module Authkit
     end
 
     protected
+
+    def username?
+      options[:username]
+    end
 
     def oauth?
       options[:oauth]

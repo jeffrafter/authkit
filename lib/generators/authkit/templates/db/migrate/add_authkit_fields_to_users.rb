@@ -6,8 +6,8 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
   def self.up
     add_column :users, :email, :string, :default => "", :null => false
     add_column :users, :password_digest, :string, :default => "", :null => false
-    add_column :users, :username, :string, :limit => 64
-
+    <% if username? %>add_column :users, :username, :string, :limit => 64
+    <% end %>
     add_column :users, :time_zone, :string, :default => "Eastern Time (US & Canada)"
     add_column :users, :first_name, :string
     add_column :users, :last_name, :string
@@ -54,8 +54,8 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
 
     # Make sure the validations are enforced
     add_index :users, :email, :unique => true
-    add_index :users, :username, :unique => true
-    add_index :users, :reset_password_token, :unique => true
+    <% if username? %>add_index :users, :username, :unique => true
+    <% end %>add_index :users, :reset_password_token, :unique => true
     add_index :users, :remember_token, :unique => true
     add_index :users, :confirmation_token, :unique => true
     add_index :users, :unlock_token, :unique => true
@@ -65,8 +65,8 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
   def self.down
     drop_column :users, :email
     drop_column :users, :password_digest
-    drop_column :users, :username
-
+    <% if username? %>drop_column :users, :username
+    <% end %>
     drop_column :users, :time_zone
     drop_column :users, :first_name
     drop_column :users, :last_name

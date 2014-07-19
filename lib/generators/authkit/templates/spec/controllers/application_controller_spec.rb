@@ -77,7 +77,7 @@ describe ApplicationController do
 
     it "has a logged in helper method" do
       get :new, {}, logged_in_session
-      controller.should be_logged_in
+      controller.send(:logged_in?).should == true
     end
   end
 

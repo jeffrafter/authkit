@@ -14,8 +14,8 @@ Rails.application.config.filter_parameters += [
   :first_name,
   :last_name,
   :phone_number,
-  :username,
-  :email,
+  <% if username? %>:username,
+  <% end %>:email,
   :confirmation_email,
   :current_sign_in_ip,
   :last_sign_in_ip

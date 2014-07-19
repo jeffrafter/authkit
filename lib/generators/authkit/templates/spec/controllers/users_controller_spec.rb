@@ -97,7 +97,7 @@ describe UsersController do
         end
 
         it "sets the errors" do
-          user.should have(1).errors_on(:password_confirmation)
+          expect(user.errors[:password_confirmation].size).to eq(1)
         end
       end
 
@@ -111,7 +111,7 @@ describe UsersController do
         end
 
         it "includes the errors in the json" do
-          user.should have(1).errors_on(:password_confirmation)
+          expect(user.errors[:password_confirmation].size).to eq(1)
           response.body.should =~ /doesn't match Password/i
         end
       end

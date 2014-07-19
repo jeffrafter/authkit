@@ -1,7 +1,7 @@
 require 'email_format_validator'
-require 'username_format_validator'
 require 'full_name_splitter'
-
+<% if username? %>require 'username_format_validator'
+<% end %>
 class User < ActiveRecord::Base
   <% if oauth? %>
   has_many :auths
@@ -14,15 +14,15 @@ class User < ActiveRecord::Base
   before_validation :set_confirmation_email
 
   validates :password, confirmation: true, length: { minimum: 6 }, if: :has_password?
-  validates :username, username_format: true, uniqueness: { case_sensitive: false, allow_nil: true }
   validates :email, email_format: true, uniqueness: { allow_nil: true }
   validates :confirmation_email, email_format: true
-
+  <% if username? %>validates :username, username_format: true, uniqueness: { case_sensitive: false, allow_nil: true }
+  <% end %>
   validates :password, presence: true, unless: :has_auth_or_skip_password_validation?
-  validates :username, presence: true, unless: :has_auth?
   validates :email, presence: true, unless: :has_auth?
   validates :confirmation_email, presence: true, unless: :has_auth?
-
+  <% if username? %>validates :username, presence: true, unless: :has_auth?
+  <% end %>
   # Confirm emails check for existing emails for uniqueness as a convenience
   validate  :confirmation_email_uniqueness, if: :confirmation_email_set?
 
@@ -31,7 +31,7 @@ class User < ActiveRecord::Base
   end
 
   def incomplete?
-    username.blank? || email.blank? || password_digest.blank?
+    <% if username? %>username.blank? || <% end %>email.blank? || password_digest.blank?
   end
 
   def full_name=(value)

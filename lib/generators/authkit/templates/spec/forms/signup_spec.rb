@@ -11,7 +11,7 @@ describe Signup do
     it "should validate terms of service acceptance" do
       signup.terms_of_service = "1"
       signup.valid?
-      signup.should_not have(1).errors_on(:terms_of_service)
+      expect(signup.errors[:terms_of_service].size).to eq(0)
     end
 
     it "should validate models" do
@@ -23,7 +23,7 @@ describe Signup do
     it "should copy errors from the user to the signup" do
       signup.user = User.new
       signup.valid?
-      signup.should have(1).errors_on(:password)
+      expect(signup.errors[:password].size).to eq(1)
     end
   end
 

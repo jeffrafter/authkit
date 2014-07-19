@@ -10,8 +10,8 @@ class Signup
   # User
   attr_accessor(
     :email,
-    :username,
-    :password,
+    <% if username? %>:username,
+    <% end %>:password,
     :password_confirmation,
     :first_name,
     :last_name,
@@ -79,8 +79,8 @@ class Signup
     self.email = self.auth.try(:email) if self.email.blank?
     self.first_name = self.auth.try(:first_name) if self.first_name.blank?
     self.last_name = self.auth.try(:last_name) if self.last_name.blank?
-    self.username = self.auth.try(:username) if self.username.blank?
-    self.skip_email_confirmation = true
+    <% if username? %>self.username = self.auth.try(:username) if self.username.blank?
+    <% end %>self.skip_email_confirmation = true
 
     # We need to reassign the user fields if the user is already created
     self.user.attributes = user_params if self.user
@@ -117,8 +117,8 @@ class Signup
   def user_params
     {
       email: self.email,
-      username: self.username,
-      password: self.password,
+      <% if username? %>username: self.username,
+      <% end %>password: self.password,
       password_confirmation: self.password_confirmation,
       first_name: self.first_name,
       last_name: self.last_name,

@@ -132,7 +132,7 @@ describe PasswordChangeController do
 
       it "has errors" do
         post 'create', {token: token, email: user.email, password: 'newpassword', password_confirmation: 'invalid'}
-        user.should have(1).errors_on(:password_confirmation)
+        expect(user.errors[:password_confirmation].size).to eq(1)
       end
 
       describe "from json" do

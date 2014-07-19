@@ -2,7 +2,7 @@
 
 <%%= form_tag(login_path, method: "post") do %>
   <div class="field">
-    <%%= label_tag "email", "Email or username" %>
+    <%%= label_tag "email", "Email<% if username? %> or username<% end %>" %>
     <%%= text_field_tag "email" %>
   </div>
   <div class="field">

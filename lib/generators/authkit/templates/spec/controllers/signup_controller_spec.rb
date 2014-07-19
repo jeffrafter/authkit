@@ -87,7 +87,7 @@ describe SignupController do
 
         it "sets the errors" do
           post :create, {signup: invalid_params}, {}
-          assigns(:signup).should have(1).errors_on(:password_confirmation)
+          expect(assigns(:signup).errors[:password_confirmation].size).to eq(1)
         end
       end
 
@@ -99,7 +99,7 @@ describe SignupController do
 
         it "includes the errors in the json" do
           post :create, {signup: invalid_params, format: 'json'}, {}
-          assigns(:signup).should have(1).errors_on(:password_confirmation)
+          expect(assigns(:signup).errors[:password_confirmation].size).to eq(1)
           response.body.should =~ /doesn't match Password/i
         end
       end

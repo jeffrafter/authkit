@@ -54,11 +54,11 @@
     <%%= f.label "email" %>
     <%%= f.text_field "email" %>
   </div>
-  <div class="field">
+  <% if username? %><div class="field">
     <%%= f.label "username" %>
     <%%= f.text_field "username" %>
   </div>
-  <div class="field">
+  <% end %><div class="field">
     <%%= f.label "password" %>
     <%%= f.password_field "password" %>
   </div>

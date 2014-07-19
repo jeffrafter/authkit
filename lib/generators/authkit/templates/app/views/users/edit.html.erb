@@ -1,58 +1,58 @@
 <h1>Account</h1>
 
-<% if @user.errors.any? %>
+<%% if @user.errors.any? %>
   <div id="error_explanation">
     <div class="alert alert-error">
-      The form contains <%= pluralize(@user.errors.count, "error") %>.
+      The form contains <%%= pluralize(@user.errors.count, "error") %>.
     </div>
     <ul>
-    <% @user.errors.full_messages.each do |msg| %>
-      <li>* <%= msg %></li>
-    <% end %>
+    <%% @user.errors.full_messages.each do |msg| %>
+      <li>* <%%= msg %></li>
+    <%% end %>
     </ul>
   </div>
-<% end %>
+<%% end %>
 
-<%= form_for @user do |f| %>
+<%%= form_for @user do |f| %>
   <div class="field">
-    <%= f.label "first_name" %>
-    <%= f.text_field "first_name" %>
+    <%%= f.label "first_name" %>
+    <%%= f.text_field "first_name" %>
   </div>
   <div class="field">
-    <%= f.label "last_name" %>
-    <%= f.text_field "last_name" %>
+    <%%= f.label "last_name" %>
+    <%%= f.text_field "last_name" %>
   </div>
   <div class="field">
-    <%= f.label "bio" %>
-    <%= f.text_area "bio" %>
+    <%%= f.label "bio" %>
+    <%%= f.text_area "bio" %>
   </div>
   <div class="field">
-    <%= f.label "website" %>
-    <%= f.text_field "website" %>
+    <%%= f.label "website" %>
+    <%%= f.text_field "website" %>
   </div>
   <div class="field">
-    <%= f.label "phone_number" %>
-    <%= f.text_field "phone_number" %>
+    <%%= f.label "phone_number" %>
+    <%%= f.text_field "phone_number" %>
   </div>
   <div class="field">
-    <%= f.label "time_zone" %>
-    <%= f.time_zone_select('time_zone', ActiveSupport::TimeZone.us_zones, :default => "Pacific Time (US & Canada)") %>
+    <%%= f.label "time_zone" %>
+    <%%= f.time_zone_select('time_zone', ActiveSupport::TimeZone.us_zones, :default => "Pacific Time (US & Canada)") %>
   </div>
   <div class="field">
-    <%= f.label "email" %>
-    <%= f.text_field "confirmation_email" %>
+    <%%= f.label "email" %>
+    <%%= f.text_field "confirmation_email" %>
+  </div>
+  <% if username? %><div class="field">
+    <%%= f.label "username" %>
+    <%%= f.text_field "username" %>
+  </div>
+  <% end %><div class="field">
+    <%%= f.label "password" %>
+    <%%= f.password_field "password" %>
   </div>
   <div class="field">
-    <%= f.label "username" %>
-    <%= f.text_field "username" %>
+    <%%= f.label "password_confirmation" %>
+    <%%= f.password_field "password_confirmation" %>
   </div>
-  <div class="field">
-    <%= f.label "password" %>
-    <%= f.password_field "password" %>
-  </div>
-  <div class="field">
-    <%= f.label "password_confirmation" %>
-    <%= f.password_field "password_confirmation" %>
-  </div>
-  <%= f.submit "Save" %>
-<% end %>
+  <%%= f.submit "Save" %>
+<%% end %>

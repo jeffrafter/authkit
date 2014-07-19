@@ -25,12 +25,12 @@ describe User do
   describe "validations" do
     describe "unique" do
       before(:each) do
-        create(:user)
+        create(:user, email: "test@example.com")
       end
-      it { should validate_uniqueness_of(:username) }
-      it { should validate_uniqueness_of(:email) }
+      <% if username? %>it { should validate_uniqueness_of(:username) }
+      <% end %>it { should validate_uniqueness_of(:email) }
       it "validates the uniqueness of the the confirmation email" do
-        user = User.new(user_params.merge(email: "old@example.com", username: "old"))
+        user = build(:user, email: "old@example.com")
         user.confirmation_email = "new@example.com"
         user.should be_valid
         user.confirmation_email = "test@example.com"
@@ -38,8 +38,8 @@ describe User do
       end
     end
     it { should validate_presence_of(:confirmation_email) }
-    it { should validate_presence_of(:username) }
-    it { should validate_presence_of(:password) }
+    <% if username? %>it { should validate_presence_of(:username) }
+    <% end %>it { should validate_presence_of(:password) }
     it { should validate_confirmation_of(:password) }
 
   end
@@ -194,11 +194,11 @@ describe User do
     end
 
     it "does not confirm emails if they are already used" do
-      create(:user, email: "new@example.com", username: "newuser")
+      create(:user, email: "new@example.com")
       user.confirmation_email = "new@example.com"
       user.confirmation_token = "TOKEN"
       user.email_confirmed.should == false
-      user.should have(1).errors_on(:email)
+      expect(user.errors[:email].size).to eq(1)
     end
 
     it "is pending confirmation if there is a confirmation token" do

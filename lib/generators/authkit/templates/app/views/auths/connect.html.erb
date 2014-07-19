@@ -1,34 +1,34 @@
 <div class="providers">
-  <% providers.each do |provider| %>
-    <a href="/auth/<%= provider %>?connect=1" class="oauth <%= provider %>"><i class="fa <%= provider_font_awesome_icon(provider) %>"></i> <%= provider_formatted_name(provider) %> Account</a>
-  <% end %>
+  <%% providers.each do |provider| %>
+    <a href="/auth/<%%= provider %>?connect=1" class="oauth <%%= provider %>"><i class="fa <%%= provider_font_awesome_icon(provider) %>"></i> <%%= provider_formatted_name(provider) %> Account</a>
+  <%% end %>
 </div>
 
 <table class="connected">
-  <% current_user.auths.order('provider, id').each do |auth| %>
-    <tr class="auth <%= auth.provider %>">
+  <%% current_user.auths.order('provider, id').each do |auth| %>
+    <tr class="auth <%%= auth.provider %>">
       <td width="30">
-        <% unless auth.image_url.blank? %>
-          <img src="<%= auth.image_url %>" class="avatar">
-        <% end %>
+        <%% unless auth.image_url.blank? %>
+          <img src="<%%= auth.image_url %>" class="avatar">
+        <%% end %>
       </td>
       <td>
-        <span class="name"><%= auth.name %></span>
-        <%= link_to 'Disconnect', disconnect_url(auth) %>
+        <span class="name"><%%= auth.name %></span>
+        <%%= link_to 'Disconnect', disconnect_url(auth) %>
       </td>
       <td align="center">
-        <span class="icon"><i class="fa <%= provider_font_awesome_icon(auth.provider) %>"></i></span>
+        <span class="icon"><i class="fa <%%= provider_font_awesome_icon(auth.provider) %>"></i></span>
       </td>
     </li>
-  <% end %>
-  <% if current_user.auths.count == 0 %>
+  <%% end %>
+  <%% if current_user.auths.count == 0 %>
     <tr>
       <td colspan="3">You have not connected any social accounts</td>
     </tr>
-  <% end %>
+  <%% end %>
 </table>
 
 <div class="agreement">
   By connecting your account you are also agreeing to our<br />
-  <a href="<%= terms_path %>" target="_blank">Terms &amp; Conditions</a> and <a href="<%= privacy_path %>" target="_blank">Privacy Policy</a>
+  <a href="<%%= terms_path %>" target="_blank">Terms &amp; Conditions</a> and <a href="<%%= privacy_path %>" target="_blank">Privacy Policy</a>
 </div>

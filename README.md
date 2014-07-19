@@ -144,7 +144,6 @@ Authkit has a number of conventions and requirements that should be noted.
 * SSL expected
 * secure cookies
 * password complexity is not robust
-* username resrictions are not implemented
 * users do not need to confirm their email address to proceed
 * need a root route
 
@@ -157,8 +156,6 @@ It is expected that your application be protected by SSL. Though it is possible 
 There is only a minimal amount of validation on the password. Because of this users can choose poor passwords (which are not complex or are overly common). To improve this you can adjust the validation in `user.rb`:
 
     validates :password, presence: true, confirmation: true, length: {minimum: 6}, if: :password_set?
-
-Likewise, there are no restrictions on `username`. If you want to use this field within the URL you will need to constrain the format of the `username` field. Additionally, there may be some user names you want to explicitly disallow based on your routing setup.
 
 ### Confirmation not required by default
 
