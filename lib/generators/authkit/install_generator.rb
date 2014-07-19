@@ -26,6 +26,7 @@ module Authkit
     class_option :tumblr, type: :boolean
     class_option :twitter, type: :boolean
     class_option :vimeo, type: :boolean
+    class_option :shopify, type: :boolean
     class_option :all, type: :boolean
 
     def self.source_root
@@ -148,6 +149,7 @@ module Authkit
         gem 'omniauth-twitter' if provider?(:twitter)
         gem 'omniauth-tumblr' if provider?(:tumblr)
         gem 'omniauth-soundcloud' if provider?(:soundcloud)
+        gem 'omniauth-shopify-oauth2' if provider?(:shopify)
 
         # Support for google client apis
         if provider?(:google)
@@ -186,7 +188,8 @@ module Authkit
          soundcloud
          tumblr
          twitter
-         vimeo).each do |provider|
+         vimeo
+         shopify).each do |provider|
         result << provider.to_sym if provider?(provider.to_sym)
       end
       result
@@ -206,7 +209,8 @@ module Authkit
         soundcloud: "SoundCloud",
         tumblr: "Tumblr",
         twitter: "Twitter",
-        vimeo: "Vimeo"
+        vimeo: "Vimeo",
+        shopify: "Shopify"
       }
     end
 
@@ -224,7 +228,8 @@ module Authkit
         soundcloud: "soundcloud",
         tumblr: "tumblr",
         twitter: "twitter",
-        vimeo: "vimeo"
+        vimeo: "vimeo",
+        shopify: "shopify"
       }
     end
 

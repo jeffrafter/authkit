@@ -79,7 +79,7 @@ class AuthsController < ApplicationController
       redirect_to settings_path
     elsif signing_up?
       redirect_to signup_path
-    else 
+    else
       redirect_to login_path
     end
   end

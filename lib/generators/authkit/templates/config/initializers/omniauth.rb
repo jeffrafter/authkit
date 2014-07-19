@@ -48,4 +48,12 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     }
   }
   <% end %>
+
+  <% if provider?(:shopify) %>
+  # https://github.com/Shopify/omniauth-shopify-oauth2
+  provider :shopify, ENV['SHOPIFY_API_KEY'], ENV['SHOPIFY_SHARED_SECRET'],
+            :scope => 'read_products,read_orders,write_content,read_customers,write_themes,write_script_tags',
+            :setup => lambda { |env| params = Rack::Utils.parse_query(env['QUERY_STRING'])
+                                     env['omniauth.strategy'].options[:client_options][:site] = "https://#{params['shop']}" }
+  <% end %>
 end
