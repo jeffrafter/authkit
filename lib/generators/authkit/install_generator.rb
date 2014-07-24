@@ -34,26 +34,43 @@ module Authkit
     end
 
     def generate_authkit
+      generate_migrations
+      install_templates
+      install_routes
+      install_gems
+    end
+
+    protected
+
+    def generate_migrations
       generate_migration("create_users")
       generate_migration("add_authkit_fields_to_users")
       generate_migration("create_auths") if oauth?
+    end
 
+    def ensure_destination
       # Ensure the destination structure
-      empty_directory "app"
-      empty_directory "app/models"
-      empty_directory "app/forms"
-      empty_directory "app/controllers"
-      empty_directory "app/helpers"
-      empty_directory "app/views"
-      empty_directory "app/views/users"
-      empty_directory "app/views/sessions"
-      empty_directory "app/views/password_reset"
-      empty_directory "app/views/password_change"
-      empty_directory "spec"
-      empty_directory "spec/factories"
-      empty_directory "spec/models"
-      empty_directory "spec/controllers"
-      empty_directory "lib"
+      ["app",
+       "app/models",
+       "app/forms",
+       "app/controllers",
+       "app/helpers",
+       "app/views",
+       "app/views/users",
+       "app/views/sessions",
+       "app/views/password_reset",
+       "app/views/password_change",
+       "spec",
+       "spec/factories",
+       "spec/models",
+       "spec/controllers",
+       "lib"].each do |dir|
+        empty_directory dir
+      end
+    end
+
+    def install_templates
+      ensure_destination
 
       # Fill out some templates (for now, this is just straight copy)
       template "app/models/user.rb", "app/models/user.rb"
@@ -105,7 +122,9 @@ module Authkit
       insert_at_end_of_class "spec/spec_helper.rb", "spec/spec_helper.rb"
 
       insert_at_end_of_file "config/initializers/filter_parameter_logging.rb", "config/initializers/filter_parameter_logging.rb"
+    end
 
+    def install_routes
       # Setup the routes
       route "get   '/email/confirm/:token', to: 'email_confirmation#show', as: :confirm"
 
@@ -130,7 +149,9 @@ module Authkit
 
       route "patch '/account', to: 'users#update'"
       route "get   '/account', to: 'users#edit', as: :user"
+    end
 
+    def install_gems
       # Support for has_secure_password and has_one_time_password
       gem "active_model_otp"
       gem "bcrypt-ruby", '~> 3.1.2'
@@ -159,8 +180,6 @@ module Authkit
         end
       end
     end
-
-    protected
 
     def username?
       options[:username]
@@ -234,17 +253,18 @@ module Authkit
     end
 
     def insert_at_end_of_file(filename, source)
-      source = File.expand_path(find_in_source_paths(source.to_s))
-      context = instance_eval('binding')
-      content = ERB.new(::File.binread(source), nil, '-', '@output_buffer').result(context)
-      insert_into_file filename, "#{content}\n", before: /\z/
+      insert_before filename, source, /\z/
     end
 
     def insert_at_end_of_class(filename, source)
+      insert_before filename, source, /end\n*\z/
+    end
+
+    def insert_before(filename, source, before)
       source = File.expand_path(find_in_source_paths(source.to_s))
       context = instance_eval('binding')
       content = ERB.new(::File.binread(source), nil, '-', '@output_buffer').result(context)
-      insert_into_file filename, "#{content}\n", before: /end\n*\z/
+      insert_into_file filename, "#{content}\n", before: before
     end
 
     def generate_migration(filename)
