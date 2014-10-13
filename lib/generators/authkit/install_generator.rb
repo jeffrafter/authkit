@@ -118,9 +118,6 @@ module Authkit
       # We don't want to overwrite this file and we may have a protected section so we want it at the bottom
       insert_at_end_of_class "app/controllers/application_controller.rb", "app/controllers/application_controller.rb"
 
-      # Technically, we aren't inserting this at the end of the class, but the end of the RSpec::Configure
-      insert_at_end_of_class "spec/spec_helper.rb", "spec/spec_helper.rb"
-
       insert_at_end_of_file "config/initializers/filter_parameter_logging.rb", "config/initializers/filter_parameter_logging.rb"
     end
 

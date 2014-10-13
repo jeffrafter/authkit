@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe SignupController do
   render_views
@@ -9,8 +9,8 @@ describe SignupController do
   describe "GET 'new'" do
     it "returns http success" do
       get :new
-      response.should be_success
-      assigns(:signup).should_not be_nil
+      expect(response).to be_success
+      expect(assigns(:signup)).to_not be_nil
     end
   end
 
@@ -24,32 +24,32 @@ describe SignupController do
         end
 
         it "confirms the email" do
-          User.any_instance.should_receive(:send_confirmation)
+          expect_any_instance_of(User).to receive(:send_confirmation)
           post :create, {signup: signup_params}, {}
         end
 
         it "signs the user in" do
           post :create, {signup: signup_params}, {}
-          controller.send(:current_user).should == assigns(:signup).user
+          expect(controller.send(:current_user)).to eq(assigns(:signup).user)
         end
 
         it "remembers the user if remember me is chosen" do
-          User.any_instance.should_receive(:set_remember_token)
-          controller.should_receive(:set_remember_cookie)
+          expect_any_instance_of(User).to receive(:set_remember_token)
+          expect(controller).to receive(:set_remember_cookie)
           post :create, {signup: signup_params, remember_me: "1"}, {}
-          controller.send(:current_user).should == assigns(:signup).user
+          expect(controller.send(:current_user)).to eq(assigns(:signup).user)
         end
 
         it "does not remember the user if remember me is not chosen" do
-          User.any_instance.should_not_receive(:set_remember_token)
-          controller.should_not_receive(:set_remember_cookie)
+          expect_any_instance_of(User).to_not receive(:set_remember_token)
+          expect(:controller).to_not receive(:set_remember_cookie)
           post :create, {signup: signup_params, remember_me: ""}, {}
-          controller.send(:current_user).should == assigns(:signup).user
+          expect(controller.send(:current_user)).to eq(assigns(:signup).user)
         end
 
         it "redirects to the root" do
           post :create, {signup: signup_params}
-          response.should be_redirect
+          expect(response).to be_redirect
         end
       end
 
@@ -62,12 +62,12 @@ describe SignupController do
 
         it "signs the user in" do
           post :create, {signup: signup_params, format: 'json'}, {}
-          controller.send(:current_user).should == assigns(:signup).user
+          expect(controller.send(:current_user)).to eq(assigns(:signup).user)
         end
 
         it "returns http success" do
           post :create, {signup: signup_params, format: 'json'}
-          response.should be_success
+          expect(response).to be_success
         end
       end
     end
@@ -76,7 +76,7 @@ describe SignupController do
       describe "from html" do
         it "renders the new page" do
           post :create, {signup: invalid_params}, {}
-          response.should render_template("new")
+          expect(response).to render_template("new")
         end
 
         it "does not create a user" do
@@ -94,13 +94,13 @@ describe SignupController do
       describe "from json" do
         it "returns a 422" do
           post :create, {signup: invalid_params, format: 'json'}, {}
-          response.code.should == '422'
+          expect(response.code).to eq('422')
         end
 
         it "includes the errors in the json" do
           post :create, {signup: invalid_params, format: 'json'}, {}
           expect(assigns(:signup).errors[:password_confirmation].size).to eq(1)
-          response.body.should =~ /doesn't match Password/i
+          expect(response.body).to match(/doesn't match Password/i)
         end
       end
     end

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Auth do
   let(:auth_params) { attributes_for(:auth) }
@@ -15,5 +15,4 @@ describe Auth do
   it "knows how to refresh google tokens"
   it "returns a formatted provider name"
   it "parses the env"
-
 end

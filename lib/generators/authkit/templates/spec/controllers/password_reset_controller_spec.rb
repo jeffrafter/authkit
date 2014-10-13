@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe PasswordResetController do
   render_views
@@ -8,7 +8,7 @@ describe PasswordResetController do
   describe "GET 'show'" do
     it "returns http success" do
       get 'show'
-      response.should be_success
+      expect(response).to be_success
     end
   end
 
@@ -19,38 +19,38 @@ describe PasswordResetController do
 
     it "redirects the user" do
       post :create, {email: user.email}
-      response.should be_redirect
+      expect(response).to be_redirect
     end
 
     it "finds the user by the email or user name" do
       post :create, {email: user.email}
-      controller.send(:user).should == user
+      expect(controller.send(:user)).to == user
     end
 
     it "logs any current user out if it finds the user" do
-      controller.should_receive(:logout)
+      expect(controller).to receive(:logout)
       post :create, {email: user.email}
     end
 
     it "resets the password if it finds the user" do
-      User.any_instance.should_receive(:send_reset_password).and_return(true)
+      expect_any_instance_of(User).to receive(:send_reset_password).and_return(true)
       post :create, {email: user.email}
     end
 
     it "does not reset the password if it does not find a user" do
-      User.any_instance.should_not_receive(:send_reset_password)
+      expect_any_instance_of(User).to_not receive(:send_reset_password)
       post :create, {email: "unknown@example.com"}
     end
 
     it "downcases the email or user name" do
-      User.any_instance.should_receive(:send_reset_password).and_return(true)
+      expect_any_instance_of(User).to receive(:send_reset_password).and_return(true)
       post :create, {email: user.email.upcase}
     end
 
     describe "from json" do
       it "returns http success" do
         post :create, {email: user.email, format: "json"}
-        response.should be_success
+        expect(response).to be_success
       end
     end
 
@@ -58,24 +58,24 @@ describe PasswordResetController do
       describe "from html" do
         it "sets the flash message" do
           post :create, {email: "unknown@example.com"}
-          flash.now[:error].should_not be_empty
+          expect(flash.now[:error]).to_not be_empty
         end
 
         it "renders the show page" do
           post :create, {email: "unknown@example.com"}
-          response.should render_template(:show)
+          expect(response).to render_template(:show)
         end
       end
 
       describe "from json" do
         it "returns an error" do
           post :create, {email: "unknown@example.com", format: "json"}
-          response.body.should =~ /invalid user name or email/i
+          expect(response.body).to match(/invalid user name or email/i)
         end
 
         it "returns forbidden status" do
           post :create, {email: "unknown@example.com", format: "json"}
-          response.code.should == '422'
+          expect(response.code).to eq('422')
         end
       end
     end

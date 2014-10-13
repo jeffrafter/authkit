@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe AuthsController do
   render_views
@@ -6,7 +6,7 @@ describe AuthsController do
   describe "GET 'connect'" do
     it "returns http success" do
       get :connect
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "requires login"
@@ -15,7 +15,7 @@ describe AuthsController do
   describe "POST 'callback'" do
     it "returns http success" do
       get :connect
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "validates the authenticity of the omniauth hash"

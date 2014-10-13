@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe EmailConfirmationController do
   render_views
@@ -8,27 +8,27 @@ describe EmailConfirmationController do
 
   describe "GET 'show'" do
     it "requires a login" do
-      controller.stub(:current_user).and_return(nil)
+      allow(controller).to receive(:current_user).and_return(nil)
       get 'show', token: token
-      response.should be_redirect
-      flash[:error].should_not be_empty
+      expect(response).to be_redirect
+      expect(flash[:error]).to_not be_empty
     end
 
     it "requires a valid token" do
       user.confirmation_token = "OTHER TOKEN"
-      controller.stub(:current_user).and_return(user)
+      allow(controller).to receive(:current_user).and_return(user)
       get 'show', token: token
-      response.should be_redirect
-      flash[:error].should_not be_empty
+      expect(response).to be_redirect
+      expect(flash[:error]).to_not be_empty
     end
 
     it "requires an unexpired token" do
       user.confirmation_token = token
       user.confirmation_token_created_at = 4.days.ago
-      controller.stub(:current_user).and_return(user)
+      allow(controller).to receive(:current_user).and_return(user)
       get 'show', token: token
-      response.should be_redirect
-      flash[:error].should_not be_empty
+      expect(response).to be_redirect
+      expect(flash[:error]).to_not be_empty
     end
 
     describe "with a valid token" do
@@ -36,58 +36,56 @@ describe EmailConfirmationController do
         user.confirmation_email = "new@example.com"
         user.confirmation_token = token
         user.confirmation_token_created_at = Time.now
+        allow(controller).to receive(:current_user).and_return(user)
       end
 
       describe "when the confirmation is successful" do
         it "confirms the user email" do
-          controller.stub(:current_user).and_return(user)
-          user.should_receive(:email_confirmed).and_return(true)
+          expect(user).to receive(:email_confirmed).and_return(true)
           get 'show', token: token
         end
 
         it "does not sign the user in" do
-          controller.stub(:current_user).and_return(user)
-          controller.should_not_receive(:login)
+          expect(controller).to_not receive(:login)
           get 'show', token: token
         end
 
         it "sets the flash" do
-          controller.stub(:current_user).and_return(user)
           get 'show', token: token
-          flash[:notice].should_not be_nil
+          expect(flash[:notice]).to_not be_nil
         end
 
         it "redirects the user" do
-          controller.stub(:current_user).and_return(user)
           get 'show', token: token
-          response.should be_redirect
+          expect(response).to be_redirect
         end
 
         describe "from json" do
           it "returns http success" do
-            controller.stub(:current_user).and_return(user)
             get 'show', token: token, format: 'json'
-            response.should be_success
+            expect(response).to be_success
           end
         end
 
       end
 
       describe "when the confirmation is not successful" do
+        before(:each) do
+          allow(controller).to receive(:current_user).and_return(user)
+        end
+
         it "handles invalid confirmations" do
-          controller.stub(:current_user).and_return(user)
           user.should_receive(:email_confirmed).and_return(false)
           get 'show', token: token
-          flash[:error].should_not be_empty
-          response.should be_redirect
+          expect(flash[:error]).to_not be_empty
+          expect(response).to be_redirect
         end
 
         describe "from json" do
           it "returns a 422" do
-            controller.stub(:current_user).and_return(user)
-            user.should_receive(:email_confirmed).and_return(false)
+            expect(user).to receive(:email_confirmed).and_return(false)
             get 'show', token: token, format: 'json'
-            response.code.should == '422'
+            expect(response.code).to eq('422')
           end
         end
 

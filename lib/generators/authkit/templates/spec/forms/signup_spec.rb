@@ -1,10 +1,10 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Signup do
   let(:signup) { Signup.new }
 
   it "should not be persisted" do
-    signup.should_not be_persisted
+    expect(signup).to_not be_persisted
   end
 
   describe "validation" do
@@ -16,7 +16,7 @@ describe Signup do
 
     it "should validate models" do
       signup.user = User.new
-      signup.user.should_receive(:valid?).and_return(true)
+      expect(signup.user).to receive(:valid?).and_return(true)
       signup.valid?
     end
 
@@ -29,53 +29,53 @@ describe Signup do
 
   describe "saving" do
     it "should validate" do
-      signup.should_receive(:valid?)
+      expect(signup).to receive(:valid?)
       signup.save
     end
 
     describe "when valid" do
       it "should persist" do
         signup.user = build(:user)
-        signup.should_receive(:valid?).and_return(true)
-        signup.user.should_receive(:save!)
+        expect(signup).to receive(:valid?).and_return(true)
+        expect(signup.user).to receive(:save!)
         signup.save
       end
 
       it "should send the welcome" do
         signup.user = build(:user)
         signup.email = signup.user.email
-        signup.should_receive(:valid?).and_return(true)
-        signup.stub(:persist!)
-        signup.user.should_receive(:send_welcome)
+        expect(signup).to receive(:valid?).and_return(true)
+        allow(signup).to receive(:persist!)
+        expect(signup.user).to receive(:send_welcome)
         signup.save
       end
 
       it "should send the confirmation" do
         signup.user = build(:user)
         signup.email = signup.user.email
-        signup.should_receive(:valid?).and_return(true)
-        signup.stub(:persist!)
-        signup.user.should_receive(:send_confirmation)
+        expect(signup).to receive(:valid?).and_return(true)
+        allow(signup).to receive(:persist!)
+        expect(signup.user).to receive(:send_confirmation)
         signup.save
       end
     end
 
     describe "when invalid" do
       it "should not persist" do
-        signup.should_receive(:valid?).and_return(false)
-        signup.should_not_receive(:persist!)
+        expect(signup).to receive(:valid?).and_return(false)
+        expect(signup).to_not receive(:persist!)
         signup.save
       end
 
       it "should not send the welcome" do
-        signup.should_receive(:valid?).and_return(false)
-        signup.should_not_receive(:send_welcome!)
+        expect(signup).to receive(:valid?).and_return(false)
+        expect(signup).to_not receive(:send_welcome!)
         signup.save
       end
 
       it "should not send the confirmation" do
-        signup.should_receive(:valid?).and_return(false)
-        signup.should_not_receive(:send_confirmation!)
+        expect(signup).to receive(:valid?).and_return(false)
+        expect(signup).to_not receive(:send_confirmation!)
         signup.save
       end
     end
@@ -83,10 +83,10 @@ describe Signup do
 
   it "should create a new user" do
     user = build(:user)
-    User.should_receive(:new).and_return(user)
-    user.stub(:valid?).and_return(true)
-    user.should_receive(:save!)
-    user.should_receive(:send_confirmation)
+    expect(User).to receive(:new).and_return(user)
+    allow(user).to receive(:valid?).and_return(true)
+    expect(user).to receive(:save!)
+    expect(user).to receive(:send_confirmation)
     signup.stub(:valid?).and_return(true)
     signup.email = "new@example.com"
     signup.save

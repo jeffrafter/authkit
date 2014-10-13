@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApplicationController do
   let(:user) { create(:user) }
@@ -28,20 +28,19 @@ describe ApplicationController do
   describe "current_user" do
     it "returns nil if there is no current user" do
       get :new
-      controller.send(:current_user).should be_nil
+      expect(controller.send(:current_user)).to be_nil
     end
 
     it "does not perform multiple finds" do
-      where = double
-      where.stub(:first).and_return(nil)
-      User.should_receive(:where).and_return(where)
+      where = double(first: nil)
+      expect(User).to receive(:where).and_return(where)
       get :new, {}, unknown_session
-      controller.send(:current_user).should be_nil
+      expect(controller.send(:current_user)).to be_nil
     end
 
     it "finds the current user in the session" do
       get :new, {}, logged_in_session
-      controller.send(:current_user).should == user
+      expect(controller.send(:current_user)).to eq(user)
     end
 
     it "finds the current user from the remember cookie" do
@@ -52,7 +51,7 @@ describe ApplicationController do
       verifier = ActiveSupport::MessageVerifier.new(request.env["action_dispatch.secret_token".freeze])
       request.cookies[:remember] = verifier.generate(user.remember_token)
       get :index
-      controller.send(:current_user).should == user
+      expect(controller.send(:current_user)).to eq(user)
     end
 
     it "doesn't find the current user from the remember cookie if it is expired" do
@@ -66,18 +65,18 @@ describe ApplicationController do
       verifier = ActiveSupport::MessageVerifier.new(request.env["action_dispatch.secret_token".freeze])
       request.cookies[:remember] = verifier.generate(user.remember_token)
       get :index
-      controller.send(:current_user).should be_nil
+      expect(controller.send(:current_user)).to be_nil
     end
 
     it "sets the time zone" do
-      User.any_instance.should_receive(:time_zone).and_return("Pacific Time (US & Canada)")
+      expect_any_instance_of(User).to receive(:time_zone).and_return("Pacific Time (US & Canada)")
       get :index, {}, logged_in_session
-      Time.zone.name.should == "Pacific Time (US & Canada)"
+      expect(Time.zone.name).to eq("Pacific Time (US & Canada)")
     end
 
     it "has a logged in helper method" do
       get :new, {}, logged_in_session
-      controller.send(:logged_in?).should == true
+      expect(controller.send(:logged_in?)).to eq(true)
     end
   end
 
@@ -85,42 +84,42 @@ describe ApplicationController do
     it "does not allow tracking if there is a do not track header" do
       request.headers["DNT"] = "1"
       get :new
-      controller.send(:allow_tracking?).should == false
+      expect(controller.send(:allow_tracking?)).to eq(false)
     end
 
     it "allows tracking if there is no do not track header" do
       get :new
-      controller.send(:allow_tracking?).should == true
+      expect(controller.send(:allow_tracking?)).to eq(true)
     end
   end
 
   describe "when requiring a user" do
     it "allows access if there is a user" do
       get :index, {}, logged_in_session
-      response.should be_success
+      expect(response).to be_success
     end
 
     it "stores the return path" do
       get :index, {}
-      session[:return_url].should == "/anonymous"
+      expect(session[:return_url]).to eq("/anonymous")
     end
 
     describe "when responding to html" do
       it "sets the flash message" do
         get :index, {}
-        flash.should_not be_empty
+        expect(flash).to_not be_empty
       end
 
       it "redirecs the user to login" do
         get :index, {}
-        response.should be_redirect
+        expect(response).to be_redirect
       end
     end
 
     describe "when responding to json" do
       it "returns a forbidden status" do
         get :index, {format: :json}
-        response.code.should == "403"
+        expect(response.code).to eq("403")
       end
     end
   end
@@ -128,27 +127,27 @@ describe ApplicationController do
   describe "login" do
     it "tracks the login" do
       get :new
-      user.should_receive(:track_sign_in)
+      expect(user).to receive(:track_sign_in)
       controller.send(:login, user)
     end
 
     it "remembers the user using a token and cookie" do
       get :new
-      controller.should_receive(:set_remember_cookie)
-      user.should_receive(:set_remember_token)
+      expect(controller).to receive(:set_remember_cookie)
+      expect(user).to receive(:set_remember_token)
       controller.send(:login, user, true)
     end
 
     it "does not remember the user using a token and cookie when not requested" do
       get :new
-      controller.should_not_receive(:set_remember_cookie)
-      user.should_not_receive(:set_remember_token)
+      expect(controller).to_not receive(:set_remember_cookie)
+      expect(user).to_not receive(:set_remember_token)
       controller.send(:login, user, false)
     end
 
     it "resets the session" do
       get :new
-      controller.should_receive(:reset_session)
+      expect(controller).to receive(:reset_session)
       controller.send(:login, user)
     end
   end
@@ -156,19 +155,19 @@ describe ApplicationController do
   describe "logout" do
     it "resets the session" do
       get :index, {}, logged_in_session
-      controller.should_receive(:reset_session)
+      expect(controller).to receive(:reset_session)
       controller.send(:logout)
     end
 
     it "logs the user out" do
       get :index, {}, logged_in_session
       controller.send(:logout)
-      controller.send(:current_user).should be_nil
+      expect(controller.send(:current_user)).to be_nil
     end
 
     it "clears the remember token" do
       get :index, {}, logged_in_session
-      User.any_instance.should_receive(:clear_remember_token).and_return(:true)
+      expect_any_instance_of(User).to receive(:clear_remember_token).and_return(:true)
       controller.send(:logout)
     end
   end
@@ -177,12 +176,12 @@ describe ApplicationController do
     request.env["action_dispatch.secret_token"] = "SECRET"
     get :new
     controller.send(:login, user)
-    cookies.permanent.signed[:remember].should == user.remember_token
+    expect(cookies.permanent.signed[:remember]).to eq(user.remember_token)
   end
 
   it "redirects to a stored session location if present" do
     get :new, {}, {return_url: "/return"}
-    controller.should_receive(:redirect_to).with("/return").and_return(true)
+    expect(controller).to receive(:redirect_to).with("/return").and_return(true)
     controller.send(:redirect_back_or_default)
   end
 end
