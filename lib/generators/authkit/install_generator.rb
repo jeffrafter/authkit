@@ -151,7 +151,7 @@ module Authkit
     def install_gems
       # Support for has_secure_password and has_one_time_password
       gem "active_model_otp"
-      gem "bcrypt-ruby", '~> 3.1.2'
+      gem "bcrypt"
 
       # RSpec needs to be in the development group to be used in generators
       gem_group :test, :development do

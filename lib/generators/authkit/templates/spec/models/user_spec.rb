@@ -19,7 +19,7 @@ describe User do
     user = User.new
     user.email = "SIR@CAPSALOCK.COM"
     user.valid?
-    expect(user.email).to == "sir@capsalock.com"
+    expect(user.email).to eq("sir@capsalock.com")
   end
 
   describe "validations" do
@@ -178,7 +178,7 @@ describe User do
         expect(user.confirmation_email).to eq(user.email)
         expect(user.confirmation_token).to be_nil
         expect(user.confirmation_token_created_at).to be_nil
-        expec(user.email).to eq("new@example.com")
+        expect(user.email).to eq("new@example.com")
       end
     end
 

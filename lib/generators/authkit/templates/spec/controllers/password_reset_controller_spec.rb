@@ -24,7 +24,7 @@ describe PasswordResetController do
 
     it "finds the user by the email or user name" do
       post :create, {email: user.email}
-      expect(controller.send(:user)).to == user
+      expect(controller.send(:user)).to eq(user)
     end
 
     it "logs any current user out if it finds the user" do

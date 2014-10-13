@@ -87,7 +87,7 @@ describe Signup do
     allow(user).to receive(:valid?).and_return(true)
     expect(user).to receive(:save!)
     expect(user).to receive(:send_confirmation)
-    signup.stub(:valid?).and_return(true)
+    allow(signup).to receive(:valid?).and_return(true)
     signup.email = "new@example.com"
     signup.save
   end

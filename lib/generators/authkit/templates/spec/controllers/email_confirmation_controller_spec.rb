@@ -75,7 +75,7 @@ describe EmailConfirmationController do
         end
 
         it "handles invalid confirmations" do
-          user.should_receive(:email_confirmed).and_return(false)
+          expect(user).to receive(:email_confirmed).and_return(false)
           get 'show', token: token
           expect(flash[:error]).to_not be_empty
           expect(response).to be_redirect

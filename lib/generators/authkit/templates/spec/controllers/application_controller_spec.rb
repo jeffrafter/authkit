@@ -46,10 +46,7 @@ describe ApplicationController do
     it "finds the current user from the remember cookie" do
       user.save
       user.set_remember_token
-      # Need to sign the cookie
-      request.env["action_dispatch.secret_token"] = "SECRET"
-      verifier = ActiveSupport::MessageVerifier.new(request.env["action_dispatch.secret_token".freeze])
-      request.cookies[:remember] = verifier.generate(user.remember_token)
+      cookies.signed[:remember] = user.remember_token
       get :index
       expect(controller.send(:current_user)).to eq(user)
     end
@@ -60,10 +57,7 @@ describe ApplicationController do
       user.remember_token_created_at = 1.year.ago
       user.save
 
-      # Need to sign the cookie
-      request.env["action_dispatch.secret_token"] = "SECRET"
-      verifier = ActiveSupport::MessageVerifier.new(request.env["action_dispatch.secret_token".freeze])
-      request.cookies[:remember] = verifier.generate(user.remember_token)
+      cookies.signed[:remember] = user.remember_token
       get :index
       expect(controller.send(:current_user)).to be_nil
     end
