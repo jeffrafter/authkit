@@ -45,6 +45,10 @@ class Signup
     false
   end
 
+  def save!
+    raise ActiveRecord::RecordNotSaved unless save
+  end
+
   def save
     if valid?
       persist!
