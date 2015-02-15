@@ -5,13 +5,14 @@ gem_name = :authkit
 
 RSpec::Core::RakeTask.new(spec: ["generator:cleanup", "generator:prepare", "generator:#{gem_name}"]) do |task|
   task.pattern = "spec/**/*_spec.rb"
-  task.rspec_opts = "--color --drb"
+  task.rspec_opts = "--color"
   task.verbose = true
 end
 
 namespace :spec do
   RSpec::Core::RakeTask.new(database: ["generator:cleanup", "generator:prepare", "generator:database", "generator:#{gem_name}"]) do |task|
     task.pattern = "spec/**/*_spec.rb"
+    task.rspec_opts = "--color"
     task.verbose = true
   end
 end
@@ -34,13 +35,15 @@ namespace :generator do
     FileUtils.mkdir_p("spec/tmp")
 
     system "cd spec/tmp && rails new sample --skip-spring"
+    system "cp .ruby-version spec/tmp/sample"
 
     # bundle
     gem_root = File.expand_path(File.dirname(__FILE__))
     system "echo \"gem 'rspec-rails'\" >> spec/tmp/sample/Gemfile"
     system "echo \"gem '#{gem_name}', :path => '#{gem_root}'\" >> spec/tmp/sample/Gemfile"
-    system "cd spec/tmp/sample && bundle install"
-    system "cd spec/tmp/sample && rails g rspec:install"
+
+    system "cd spec/tmp/sample; bundle install"
+    system "cd spec/tmp/sample; bin/rails g rspec:install"
 
     # Open up the root route for specs
     sed("s/# root/root/", "spec/tmp/sample/config/routes.rb")
@@ -55,13 +58,13 @@ namespace :generator do
   task :database do
     puts "==  Configuring the database =================================================="
     system "cp config/database.yml.example spec/tmp/sample/config/database.yml"
-    system "cd spec/tmp/sample && rake db:migrate:reset"
+    system "cd spec/tmp/sample && bundle exec rake db:migrate:reset"
   end
 
   desc "Run the #{gem_name} generator"
   task gem_name do
-    system "cd spec/tmp/sample && rails g #{gem_name}:install --force #{'--oauth --google' if ENV['SKIP_OAUTH'].nil?}  #{'--skip-username' unless ENV['SKIP_USERNAME'].nil?} && rake db:migrate"
-    system "cd spec/tmp/sample && rake db:migrate RAILS_ENV=test"
+    system "cd spec/tmp/sample && rails g #{gem_name}:install --force #{'--oauth --google' if ENV['SKIP_OAUTH'].nil?}  #{'--skip-username' unless ENV['SKIP_USERNAME'].nil?} && bundle exec rake db:migrate"
+    system "cd spec/tmp/sample && bundle exec rake db:migrate RAILS_ENV=test"
   end
 
 end

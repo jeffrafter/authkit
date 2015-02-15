@@ -152,7 +152,7 @@ describe User do
         allow(Time).to receive(:now).and_return(time = Time.now)
 
         user.send_confirmation
-        expect(user.confirmation_token_created_at).to eq(time)
+        expect(user.confirmation_token_created_at).to eq(time.to_s)
         expect(user.confirmation_token).to_not be_blank
       end
 

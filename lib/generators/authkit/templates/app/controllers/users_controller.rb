@@ -1,8 +1,6 @@
 class UsersController < ApplicationController
   before_filter :require_login, only: [:edit, :update]
 
-  respond_to :html, :json
-
   def edit
     @user = current_user
   end

@@ -2,8 +2,6 @@ class EmailConfirmationController < ApplicationController
   before_filter :require_login
   before_filter :require_token
 
-  respond_to :html
-
   def show
     if current_user.email_confirmed
       # Do not automatically log in the user
@@ -33,9 +31,8 @@ class EmailConfirmationController < ApplicationController
   # It is possible to consider failed confirmation tokens failed attempts and
   # lock the account.
   def require_token
-    verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
     valid = params[:token].present? && current_user.confirmation_token.present?
-    valid = valid && verifier.send(:secure_compare, params[:token], current_user.confirmation_token)
+    valid = valid && ActiveSupport::SecurityUtils.secure_compare(params[:token], current_user.confirmation_token)
     valid = valid && !current_user.confirmation_token_expired?
     deny_user("Invalid token", root_path) unless valid
   end

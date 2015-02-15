@@ -51,9 +51,8 @@ class PasswordChangeController < ApplicationController
 
   # Reset password tokens expire after 1 day
   def require_token
-    verifier = ActiveSupport::MessageVerifier.new(Rails.application.config.secret_key_base)
     valid = params[:token].present?
-    valid = valid && verifier.send(:secure_compare, params[:token], email_user.reset_password_token)
+    valid = valid && ActiveSupport::SecurityUtils.secure_compare(params[:token], email_user.reset_password_token)
     valid = valid && !email_user.reset_password_token_expired?
     deny_user("Invalid token", root_path) unless valid
   end

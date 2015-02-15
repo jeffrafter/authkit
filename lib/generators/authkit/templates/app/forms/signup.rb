@@ -56,6 +56,10 @@ class Signup
     end
   end
 
+  def save!
+    raise ActiveRecord::RecordNotSaved unless save
+  end
+
   def user
     return @user if @user
     @user = User.new(user_params)
