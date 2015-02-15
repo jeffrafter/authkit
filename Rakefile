@@ -49,7 +49,7 @@ namespace :generator do
     sed("s/# root/root/", "spec/tmp/sample/config/routes.rb")
 
     # Make a thing
-    system "cd spec/tmp/sample && rails g scaffold thing name:string mood:string"
+    system "cd spec/tmp/sample; bin/rails g scaffold thing name:string mood:string"
   end
 
   # This task is not used unless you need to test the generator with an alternate database
