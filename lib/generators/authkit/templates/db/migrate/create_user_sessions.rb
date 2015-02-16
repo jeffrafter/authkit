@@ -7,7 +7,7 @@ class CreateUserSessions < ActiveRecord::Migration
       t.integer  :user_id
       t.datetime :accessed_at
       t.datetime :revoked_at
-      t.datetime :signed_out_at
+      t.datetime :logged_out_at
       t.datetime :sudo_enabled_at
       t.string   :ip
       t.string   :user_agent
@@ -17,7 +17,7 @@ class CreateUserSessions < ActiveRecord::Migration
     end
 
     add_index :user_sessions, :remember_token, :unique => true
-    add_index :user_sessions, [:accessed_at, :revoked_at, :signed_out_at], :name => 'index_user_sessions_active'
+    add_index :user_sessions, [:accessed_at, :revoked_at, :logged_out_at], :name => 'index_user_sessions_active'
     add_index :user_sessions, :user_id
   end
 

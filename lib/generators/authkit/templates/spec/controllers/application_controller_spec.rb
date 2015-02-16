@@ -146,10 +146,10 @@ describe ApplicationController do
       controller.send(:logout)
     end
 
-    it "marks the user session as signed out" do
+    it "marks the user session as logged out" do
       get :index, {}, logged_in_session
       controller.send(:logout)
-      expect(user_session.reload).to be_signed_out
+      expect(user_session.reload).to be_logged_out
     end
 
     it "logs the user out" do

@@ -1,23 +1,20 @@
 class UserSession < ActiveRecord::Base
   belongs_to :user
 
-  scope :active, -> { where('(accessed_at IS NULL OR accessed_at >= ?)', 1.month.ago).where(revoked_at: nil, signed_out_at: nil) }
+  scope :active, -> { where(revoked_at: nil, logged_out_at: nil) }
 
   validates :user, presence: true
+
   validates :remember_token, presence: true
 
   before_validation :set_remember_token
 
   def active?
-    !expired? && !signed_out? && !revoked?
+    !logged_out? && !revoked?
   end
 
-  def expired?
-    accessed_at.present? && accessed_at <= 1.day.ago
-  end
-
-  def signed_out?
-    signed_out_at.present?
+  def logged_out?
+    logged_out_at.present?
   end
 
   def revoked?
@@ -33,15 +30,15 @@ class UserSession < ActiveRecord::Base
     save!
   end
 
-  def sign_out
-    self.signed_out_at = Time.now
+  def logout
+    self.logged_out_at = Time.now
     save!
   end
 
-  def access(request)
+  def access(request, tracking=true)
     self.accessed_at = Time.now
-    self.ip = request.remote_ip
-    self.user_agent = request.user_agent
+    self.ip = request.remote_ip if tracking
+    self.user_agent = request.user_agent if tracking
     save!
   end
 
@@ -52,7 +49,7 @@ class UserSession < ActiveRecord::Base
   # the ActiveRecord::StatementInvalid or ActiveRecord::RecordNotUnique exeception
   # should bubble up.
   def set_remember_token
-    self.remember_token = SecureRandom.urlsafe_base64(32)
+    self.remember_token = SecureRandom.urlsafe_base64(32) if self.remember_token.blank?
   end
 end
 

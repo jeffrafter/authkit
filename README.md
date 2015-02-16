@@ -4,11 +4,11 @@ A gem for installing auth into you app.
 
 ## Why?
 
-There are lots of great authentication gems out there; devise? clearance? restful_auth? All of these seek to solve the problem of adding authentication to your application but they all share one philosophy: you shouldn't need to think about authentication to build your app. For me, I find I spend way more time trying to figure out how to customize the tools for the few cases when my application needs to do something different.
+There are lots of great authentication gems out there; devise? clearance? restful_auth? All of these seek to solve the problem of adding authentication to your application but they all share one philosophy: you shouldn't need to think about authentication to build your app. Because of this, the developer may spend more time trying to customize the tools for the few cases when the application needs to do something different.
 
 Authkit takes the opposite stance: auth belongs in your app. It is important and it is specific to your app. It only includes generators and installs itself with some specs. You customize it. Everything is right where you would expect it to be.
 
-Of course, this stance can be very dangerous a it relies on the application developer to not interfere with the authentication mechanisms, and it makes introducing security patches difficult. This is the trade-off. Generally speaking the approaches taken within authkit are designed for the early life-cycle of a small to medium application. It can support much larger platforms, but it is likely that larger platforms will need centralized authentication mechanisms that go beyond the scope of this project.
+Of course, this stance can be very dangerous as it relies on the application developer to not interfere with the authentication mechanisms, and it makes introducing security patches difficult. This is the trade-off. Generally speaking the approaches taken within authkit are designed for the early life-cycle of a small to medium application. It can support much larger platforms, but it is likely that larger platforms will need centralized authentication mechanisms that go beyond the scope of this project.
 
 ## Features
 
@@ -22,6 +22,7 @@ Authkit supports Ruby down to version 1.9 but targets 2.0. It is built for Rails
   * One time password / Two factor authentication
   * Token support
   * Remember me
+  * User sessions per device
   * Account page
   * Time zones
   * Do not track (DNT) support
@@ -248,6 +249,13 @@ In the case of API access, storing a digest of the token is not practical. Bcryp
 
 Additionally, storing only the digest means that a user cannot login to see their API tokens. They would need to be regenerated. This might be considered a feature.
 
+## User session expiry
+
+Users sessions and the remember tokens attached to them do not expire by default. For most sites this type of behavior is fine. If the user chooses to remember their session on the current device then that shouldn't change based on an arbitrary timeout, but only if the user revokes the session or logs out. However on some sensitive sites you may want to change this behavior. You can do this by making the cookie expire after a specific amount of time or by making the token or session expire based on a rolling time window:
+
+      scope :active, -> { where('(accessed_at IS NULL OR accessed_at >= ?)', 2.weeks.ago).where(revoked_at: nil, logged_out_at: nil) }
+
+
 ## What's missing
 
 There is a significant amount of functionality that is currently unimplemented:
@@ -262,10 +270,10 @@ There is a significant amount of functionality that is currently unimplemented:
 * One time password support completed
 * Add Authy or Google Authenticator support
 * Avatars (possibly this should be within uploadkit)
-* User session tracking and revoking
 * Audit logs
 * No internationalization (i18n)
 * JavaScript validation for username and email availability and password complexity
+* Reset all sessions on password change
 
 ## Testing
 

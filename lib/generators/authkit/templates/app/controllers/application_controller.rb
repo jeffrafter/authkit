@@ -20,7 +20,7 @@
     return @current_user_session if defined?(@current_user_session)
     @current_user_session ||= UserSession.active.where(id: session[:user_session_id]).first if session[:user_session_id]
     set_current_user_session_from_remember_token unless @current_user_session
-    @current_user_session.access(request) if @current_user_session
+    @current_user_session.access(request, allow_tracking?) if @current_user_session
     session[:user_session_id] = @current_user_session.id if @current_user_session
     session[:time_zone] = @current_user_session.user.time_zone if @current_user_session
     set_time_zone
@@ -61,7 +61,7 @@
   end
 
   def logout
-    current_user_session.sign_out if current_user_session
+    current_user_session.logout if current_user_session
     cookies.delete(:remember)
     reset_session
     @current_user_session = nil

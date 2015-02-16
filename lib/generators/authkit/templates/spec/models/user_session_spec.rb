@@ -14,9 +14,8 @@ describe UserSession do
   describe "scopes" do
     it "finds active sessions" do
       user_session
-      expired_session = create(:user_session, accessed_at: 1.year.ago)
       revoked_session = create(:user_session, revoked_at: 1.year.ago)
-      signed_out_session = create(:user_session, signed_out_at: 1.year.ago)
+      logged_out_session = create(:user_session, logged_out_at: 1.year.ago)
 
       all = UserSession.active.all
       expect(all).to include(user_session)
@@ -39,18 +38,11 @@ describe UserSession do
     expect(user_session).to_not be_active
   end
 
-  it "is expired" do
+  it "is logged out" do
     user_session = UserSession.new
-    expect(user_session).to_not be_expired
-    user_session.accessed_at = 1.year.ago
-    expect(user_session).to be_expired
-  end
-
-  it "is signed out" do
-    user_session = UserSession.new
-    expect(user_session).to_not be_signed_out
-    user_session.signed_out_at = Time.now
-    expect(user_session).to be_signed_out
+    expect(user_session).to_not be_logged_out
+    user_session.logged_out_at = Time.now
+    expect(user_session).to be_logged_out
   end
 
   it "is revoked" do
@@ -69,13 +61,12 @@ describe UserSession do
     expect(user_session).to_not be_sudo
   end
 
-  it "signs out" do
+  it "logs out" do
     token = user_session.remember_token
-    expect(user_session).to_not be_signed_out
-    user_session.sign_out
-    expect(user_session).to be_signed_out
-    expect(user_session.signed_out_at).to be_present
-    expect(user_session.remember_token).to_not eq(token)
+    expect(user_session).to_not be_logged_out
+    user_session.logout
+    expect(user_session).to be_logged_out
+    expect(user_session.logged_out_at).to be_present
   end
 
   it "records the access" do
