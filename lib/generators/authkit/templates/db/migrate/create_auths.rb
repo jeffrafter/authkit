@@ -14,8 +14,12 @@ class CreateAuths < ActiveRecord::Migration
       t.string   :refresh_token
       t.string   :secret_token
       t.text     :env
-      t.timestamps
+
+      t.timestamps null: false
     end
+
+    add_index :auths, :user_id
+    add_index :auths, [:provider, :uid]
   end
 
   def self.down

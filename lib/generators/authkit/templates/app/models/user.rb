@@ -3,6 +3,7 @@ require 'full_name_splitter'
 <% if username? %>require 'username_format_validator'
 <% end %>
 class User < ActiveRecord::Base
+  has_many :sessions, class_name: 'UserSession'
   <% if oauth? %>
   has_many :auths
   <% end %>
@@ -56,22 +57,6 @@ class User < ActiveRecord::Base
     self.save
   end
 
-  # The tokens created by this method have unique indexes but collisions are very
-  # unlikely (1/64^32). Because of this there shouldn't be a conflict. If one occurs
-  # the ActiveRecord::StatementInvalid or ActiveRecord::RecordNotUnique exeception
-  # should bubble up.
-  def set_remember_token
-    self.remember_token = SecureRandom.urlsafe_base64(32)
-    self.remember_token_created_at = Time.now
-    self.save!
-  end
-
-  def clear_remember_token
-    self.remember_token = nil
-    self.remember_token_created_at = nil
-    self.save!
-  end
-
   def reset_password_token_expired?
     # TODO reset password tokens expire in 1 day by default
     self.reset_password_token_created_at.blank? || self.reset_password_token_created_at <= 1.day.ago
@@ -80,11 +65,6 @@ class User < ActiveRecord::Base
   def confirmation_token_expired?
     # TODO confirmation tokens expire in 3 days by default
     self.confirmation_token_created_at.blank? || self.confirmation_token_created_at <= 3.days.ago
-  end
-
-  def remember_token_expired?
-    # TODO remember tokens expire in 1 year by default
-    self.remember_token_created_at.blank? || self.remember_token_created_at <= 1.year.ago
   end
 
   def send_welcome

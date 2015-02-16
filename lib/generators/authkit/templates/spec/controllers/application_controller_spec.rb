@@ -1,9 +1,10 @@
 require 'rails_helper'
 
 describe ApplicationController do
-  let(:user) { create(:user) }
-  let(:logged_in_session) { { user_id: user.id } }
-  let(:unknown_session) { { user_id: user.id + 1000000 } }
+  let(:user_session) { create(:user_session) }
+  let(:user) { user_session.user }
+  let(:logged_in_session) { { user_session_id: user_session.id } }
+  let(:unknown_session) { { user_session_id: user_session.id + 1000000 } }
 
   before(:each) do
     user
@@ -30,36 +31,23 @@ describe ApplicationController do
       get :new
       expect(controller.send(:current_user)).to be_nil
     end
+  end
 
-    it "does not perform multiple finds" do
-      where = double(first: nil)
-      expect(User).to receive(:where).and_return(where)
-      get :new, {}, unknown_session
-      expect(controller.send(:current_user)).to be_nil
+  describe "current_user_session" do
+    it "returns nil if there is no current user session" do
+      get :new
+      expect(controller.send(:current_user_session)).to be_nil
     end
 
-    it "finds the current user in the session" do
+    it "finds the current user session in the session" do
       get :new, {}, logged_in_session
-      expect(controller.send(:current_user)).to eq(user)
+      expect(controller.send(:current_user_session)).to eq(user_session)
     end
 
     it "finds the current user from the remember cookie" do
-      user.save
-      user.set_remember_token
-      cookies.signed[:remember] = user.remember_token
+      cookies.signed[:remember] = user_session.remember_token
       get :index
-      expect(controller.send(:current_user)).to eq(user)
-    end
-
-    it "doesn't find the current user from the remember cookie if it is expired" do
-      # Setup expired token
-      user.set_remember_token
-      user.remember_token_created_at = 1.year.ago
-      user.save
-
-      cookies.signed[:remember] = user.remember_token
-      get :index
-      expect(controller.send(:current_user)).to be_nil
+      expect(controller.send(:current_user_session)).to eq(user_session)
     end
 
     it "sets the time zone" do
@@ -125,17 +113,22 @@ describe ApplicationController do
       controller.send(:login, user)
     end
 
+    it "creates a session" do
+      expect {
+        get :new
+        controller.send(:login, user, true)
+      }.to change(UserSession, :count).by(1)
+    end
+
     it "remembers the user using a token and cookie" do
       get :new
       expect(controller).to receive(:set_remember_cookie)
-      expect(user).to receive(:set_remember_token)
       controller.send(:login, user, true)
     end
 
     it "does not remember the user using a token and cookie when not requested" do
       get :new
       expect(controller).to_not receive(:set_remember_cookie)
-      expect(user).to_not receive(:set_remember_token)
       controller.send(:login, user, false)
     end
 
@@ -153,24 +146,24 @@ describe ApplicationController do
       controller.send(:logout)
     end
 
+    it "marks the user session as signed out" do
+      get :index, {}, logged_in_session
+      controller.send(:logout)
+      expect(user_session.reload).to be_signed_out
+    end
+
     it "logs the user out" do
       get :index, {}, logged_in_session
       controller.send(:logout)
       expect(controller.send(:current_user)).to be_nil
-    end
-
-    it "clears the remember token" do
-      get :index, {}, logged_in_session
-      expect_any_instance_of(User).to receive(:clear_remember_token).and_return(:true)
-      controller.send(:logout)
     end
   end
 
   it "sets the remember cookie" do
     request.env["action_dispatch.secret_token"] = "SECRET"
     get :new
-    controller.send(:login, user)
-    expect(cookies.permanent.signed[:remember]).to eq(user.remember_token)
+    new_session = controller.send(:login, user, true)
+    expect(cookies.permanent.signed[:remember]).to eq(new_session.remember_token)
   end
 
   it "redirects to a stored session location if present" do

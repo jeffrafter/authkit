@@ -3,8 +3,9 @@ require 'rails_helper'
 describe SessionsController do
   render_views
 
-  let(:user) { create(:user) }
-  let(:logged_in_session) { { user_id: user.id } }
+  let(:user_session) { create(:user_session) }
+  let(:user) { user_session.user }
+  let(:logged_in_session) { { user_session_id: user_session.id } }
 
   describe "GET 'new'" do
     it "returns http success" do
@@ -44,14 +45,12 @@ describe SessionsController do
     end
 
     it "remembers the user if remember me is chosen" do
-      expect_any_instance_of(User).to receive(:set_remember_token)
       expect(controller).to receive(:set_remember_cookie)
       post :create, {email: user.email, password: "example", remember_me: "1"}
       expect(controller.send(:current_user)).to eq(user)
     end
 
     it "does not remember the user if remember me is not chosen" do
-      expect_any_instance_of(User).to_not receive(:set_remember_token)
       expect(controller).to_not receive(:set_remember_cookie)
       post :create, {email: user.email, password: "example", remember_me: ""}
       expect(controller.send(:current_user)).to eq(user)

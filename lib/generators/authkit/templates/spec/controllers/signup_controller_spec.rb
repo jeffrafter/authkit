@@ -34,14 +34,12 @@ describe SignupController do
         end
 
         it "remembers the user if remember me is chosen" do
-          expect_any_instance_of(User).to receive(:set_remember_token)
           expect(controller).to receive(:set_remember_cookie)
           post :create, {signup: signup_params, remember_me: "1"}, {}
           expect(controller.send(:current_user)).to eq(assigns(:signup).user)
         end
 
         it "does not remember the user if remember me is not chosen" do
-          expect_any_instance_of(User).to_not receive(:set_remember_token)
           expect(controller).to_not receive(:set_remember_cookie)
           post :create, {signup: signup_params, remember_me: ""}, {}
           expect(controller.send(:current_user)).to eq(assigns(:signup).user)
@@ -106,4 +104,3 @@ describe SignupController do
     end
   end
 end
-

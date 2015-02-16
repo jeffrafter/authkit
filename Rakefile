@@ -45,11 +45,15 @@ namespace :generator do
     system "cd spec/tmp/sample; bundle install"
     system "cd spec/tmp/sample; bin/rails g rspec:install"
 
+    # Make sure rails helper loads the factory girl support file
+    sed("s/# Dir/Dir/", "spec/tmp/sample/spec/rails_helper.rb")
+
     # Open up the root route for specs
     sed("s/# root/root/", "spec/tmp/sample/config/routes.rb")
 
     # Make a thing
-    system "cd spec/tmp/sample; bin/rails g scaffold thing name:string mood:string"
+    # system "cd spec/tmp/sample; bin/rails g scaffold thing name:string mood:string --no-controller-specs --no-view-specs --no-helper-specs --no-routing-specs"
+    # system "rm spec/tmp/sample/spec/models/thing_spec.rb"
   end
 
   # This task is not used unless you need to test the generator with an alternate database

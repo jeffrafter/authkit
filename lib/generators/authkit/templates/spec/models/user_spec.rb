@@ -29,7 +29,7 @@ describe User do
       end
       <% if username? %>it { should validate_uniqueness_of(:username) }
       <% end %>it { should validate_uniqueness_of(:email) }
-      it "validates the uniqueness of the the confirmation email" do
+      it "validates the uniqueness of the confirmation email" do
         existing_user = create(:user)
         user = build(:user, email: "old@example.com")
         user.confirmation_email = "new@example.com"
@@ -43,26 +43,6 @@ describe User do
     <% end %>it { should validate_presence_of(:password) }
     it { should validate_confirmation_of(:password) }
 
-  end
-
-  describe "tokens" do
-    it "sets the remember token" do
-      user = User.new
-      expect(user).to receive(:save!).and_return(true)
-      user.set_remember_token
-      expect(user.remember_token).to_not be_blank
-      expect(user.remember_token_created_at).to_not be_blank
-    end
-
-    it "clears the remember token" do
-      user = User.new
-      expect(user).to receive(:save!).and_return(true)
-      user.remember_token = "TOKEN"
-      user.remember_token_created_at = Time.now
-      user.clear_remember_token
-      expect(user.remember_token).to be_nil
-      expect(user.remember_token_created_at).to be_nil
-    end
   end
 
   describe "token expiry" do
@@ -82,15 +62,6 @@ describe User do
       expect(user.confirmation_token_expired?).to eq(false)
       user.confirmation_token_created_at = 3.days.ago
       expect(user.confirmation_token_expired?).to eq(true)
-    end
-
-    it "should expire remember tokens" do
-      user = User.new
-      expect(user.remember_token_expired?).to eq(true)
-      user.remember_token_created_at = 30.days.ago
-      expect(user.remember_token_expired?).to eq(false)
-      user.remember_token_created_at = 1.years.ago
-      expect(user.remember_token_expired?).to eq(true)
     end
   end
 
@@ -219,16 +190,16 @@ describe User do
       expect(user).to receive(:save).and_return(true)
       user.change_password("password", "password")
       expect(user.password_digest).to_not be_blank
-      expect(user.remember_token).to be_nil
-      expect(user.remember_token_created_at).to be_nil
+      expect(user.reset_password_token).to be_nil
+      expect(user.reset_password_token_created_at).to be_nil
     end
 
     it "doesn't change the password if it doesn't match" do
       user = User.new
-      user.remember_token = "token"
+      user.reset_password_token = "token"
       user.change_password("password", "typotypo")
       expect(user).to_not be_valid
-      expect(user.remember_token).to eq("token")
+      expect(user.reset_password_token).to eq("token")
     end
 
     it "resets the password" do

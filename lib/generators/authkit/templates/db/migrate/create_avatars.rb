@@ -17,7 +17,8 @@ class CreateAvatars < ActiveRecord::Migration
       t.datetime :attachment_updated_at
       t.boolean  :attachment_importing, default: false
       t.datetime :attachment_uploaded_at
-      t.timestamps
+
+      t.timestamps null: false
     end
   end
 

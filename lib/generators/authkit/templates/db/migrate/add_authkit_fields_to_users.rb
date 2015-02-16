@@ -35,10 +35,6 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
     add_column :users, :reset_password_token, :string
     add_column :users, :reset_password_token_created_at, :datetime
 
-    # Remember
-    add_column :users, :remember_token, :string
-    add_column :users, :remember_token_created_at, :datetime
-
     # Confirmation
     add_column :users, :confirmation_email, :string
     add_column :users, :confirmation_token, :string
@@ -56,7 +52,6 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
     add_index :users, :email, :unique => true
     <% if username? %>add_index :users, :username, :unique => true
     <% end %>add_index :users, :reset_password_token, :unique => true
-    add_index :users, :remember_token, :unique => true
     add_index :users, :confirmation_token, :unique => true
     add_index :users, :unlock_token, :unique => true
 
@@ -92,10 +87,6 @@ class AddAuthkitFieldsToUsers < ActiveRecord::Migration
     # Forgot password / Password reset
     drop_column :users, :reset_password_token
     drop_column :users, :reset_password_created_at
-
-    # Remember
-    drop_column :users, :remember_token
-    drop_column :users, :remember_token_created_at
 
     # Confirmation
     drop_column :users, :confirmation_email

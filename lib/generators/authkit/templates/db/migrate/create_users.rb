@@ -7,7 +7,7 @@
 class CreateUsers < ActiveRecord::Migration
   def self.up
     create_table :users do |t|
-      t.timestamps
+      t.timestamps null: false
     end
   end
 

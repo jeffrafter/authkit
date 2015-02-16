@@ -45,6 +45,7 @@ module Authkit
     def generate_migrations
       generate_migration("create_users")
       generate_migration("add_authkit_fields_to_users")
+      generate_migration("create_user_sessions")
       generate_migration("create_auths") if oauth?
     end
 
@@ -61,6 +62,7 @@ module Authkit
        "app/views/password_reset",
        "app/views/password_change",
        "spec",
+       "spec/support",
        "spec/factories",
        "spec/models",
        "spec/controllers",
@@ -74,6 +76,7 @@ module Authkit
 
       # Fill out some templates (for now, this is just straight copy)
       template "app/models/user.rb", "app/models/user.rb"
+      template "app/models/user_session.rb", "app/models/user_session.rb"
       template "app/controllers/users_controller.rb", "app/controllers/users_controller.rb"
       template "app/controllers/signup_controller.rb", "app/controllers/signup_controller.rb"
       template "app/controllers/sessions_controller.rb", "app/controllers/sessions_controller.rb"
@@ -89,8 +92,11 @@ module Authkit
 
       template "app/forms/signup.rb", "app/forms/signup.rb"
 
+      template "spec/support/factory_girl.rb", "spec/support/factory_girl.rb"
       template "spec/factories/user.rb", "spec/factories/user.rb"
+      template "spec/factories/user_session.rb", "spec/factories/user_session.rb"
       template "spec/models/user_spec.rb", "spec/models/user_spec.rb"
+      template "spec/models/user_session_spec.rb", "spec/models/user_session_spec.rb"
       template "spec/forms/signup_spec.rb", "spec/forms/signup_spec.rb"
       template "spec/controllers/application_controller_spec.rb", "spec/controllers/application_controller_spec.rb"
       template "spec/controllers/users_controller_spec.rb", "spec/controllers/users_controller_spec.rb"

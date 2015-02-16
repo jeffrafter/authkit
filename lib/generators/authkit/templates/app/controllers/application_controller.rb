@@ -16,15 +16,20 @@
   # The user is fetched using id or remember token but these come from a
   # verified cookie (verified using secure compare) so these database calls do
   # not need to protect against timing attacks.
-  def current_user
-    return @current_user if defined?(@current_user)
-    @current_user ||= User.where(id: session[:user_id]).first if session[:user_id]
-    set_current_user_from_remember_token unless @current_user
-    session[:user_id] = @current_user.id if @current_user
-    session[:time_zone] = @current_user.time_zone if @current_user
+  def current_user_session
+    return @current_user_session if defined?(@current_user_session)
+    @current_user_session ||= UserSession.active.where(id: session[:user_session_id]).first if session[:user_session_id]
+    set_current_user_session_from_remember_token unless @current_user_session
+    @current_user_session.access(request) if @current_user_session
+    session[:user_session_id] = @current_user_session.id if @current_user_session
+    session[:time_zone] = @current_user_session.user.time_zone if @current_user_session
     set_time_zone
 
-    @current_user
+    @current_user_session
+  end
+
+  def current_user
+    current_user_session && current_user_session.user
   end
 
   def allow_tracking?
@@ -46,38 +51,36 @@
 
   def login(user, remember=false)
     reset_session
-    @current_user = user
+    @current_user_session = UserSession.create(user: user)
     current_user.track_sign_in(request.remote_ip) if allow_tracking?
-    current_user.set_remember_token if remember
     set_remember_cookie if remember
-    session[:user_id] = current_user.id
+    session[:user_session_id] = current_user_session.id
     session[:time_zone] = current_user.time_zone
     set_time_zone
-    current_user
+    current_user_session
   end
 
   def logout
-    current_user.clear_remember_token if current_user
+    current_user_session.sign_out if current_user_session
     cookies.delete(:remember)
     reset_session
-    @current_user = nil
+    @current_user_session = nil
   end
 
   def set_time_zone
     Time.zone = session[:time_zone] if session[:time_zone].present?
   end
 
-  def set_current_user_from_remember_token
+  def set_current_user_session_from_remember_token
     token = cookies.signed[:remember]
     return if token.blank?
-    @current_user = User.where(remember_token: token).first
-    @current_user = nil if @current_user && @current_user.remember_token_expired?
-    @current_user
+    @current_user_session = UserSession.active.where(remember_token: "#{token}").first
+    @current_user_session
   end
 
   def set_remember_cookie
     cookies.permanent.signed[:remember] = {
-      value: current_user.remember_token,
+      value: current_user_session.remember_token,
       secure: Rails.env.production?
     }
   end

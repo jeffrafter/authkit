@@ -3,10 +3,11 @@ require 'rails_helper'
 describe UsersController do
   render_views
 
-  let(:user) { create(:user) }
+  let(:user_session) { create(:user_session) }
+  let(:user) { user_session.user }
   let(:user_params) { attributes_for(:user) }
   let(:invalid_params) { user_params.merge(password: 'newpassword', password_confirmation: 'wrongpassword') }
-  let(:logged_in_session) { { user_id: user.id } }
+  let(:logged_in_session) { { user_session_id: user_session.id } }
 
   describe "GET 'edit'" do
     it "redirects if there is no current user" do
