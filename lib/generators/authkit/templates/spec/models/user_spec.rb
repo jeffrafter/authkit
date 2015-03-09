@@ -3,6 +3,8 @@ require 'rails_helper'
 describe User do
   let(:user_params) { attributes_for(:user) }
 
+  it { should have_many(:sessions) }
+
   it "has secure password support" do
     expect(User.new).to respond_to(:authenticate)
   end

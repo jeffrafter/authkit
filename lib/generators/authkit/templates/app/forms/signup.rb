@@ -57,7 +57,7 @@ class Signup
   end
 
   def save!
-    raise ActiveRecord::RecordNotSaved unless save
+    raise ActiveRecord::RecordNotSaved.new(nil, self.user) unless save
   end
 
   def user

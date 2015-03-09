@@ -1,8 +1,6 @@
 <h1>Reset your password</h1>
 
 <%%= form_tag(password_reset_path, method: "post") do %>
-  <%%= hidden_field_tag :token, params[:token] %>
-
   <div class="field">
     <%%= label_tag "email", "Email<% if username? %> or username<% end %>" %>
     <%%= text_field_tag "email" %>
