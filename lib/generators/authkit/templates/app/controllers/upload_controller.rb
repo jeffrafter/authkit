@@ -1,7 +1,7 @@
 class UploadController < ApplicationController
-  before_filter :require_login
-  before_filter :require_advertiser, only: [:audio, :cover]
-  before_filter :aws_key_to_remote_url, only: [:avatar]
+  before_action :require_login
+  before_action :require_advertiser, only: [:audio, :cover]
+  before_action :aws_key_to_remote_url, only: [:avatar]
 
   respond_to :json
 

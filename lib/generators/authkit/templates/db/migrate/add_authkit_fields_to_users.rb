@@ -2,7 +2,7 @@
 #
 # Add fields to the users table for managing authentication.
 #
-class AddAuthkitFieldsToUsers < ActiveRecord::Migration
+class AddAuthkitFieldsToUsers < ActiveRecord::Migration[5.0]
   def self.up
     add_column :users, :email, :string, :default => "", :null => false
     add_column :users, :password_digest, :string, :default => "", :null => false

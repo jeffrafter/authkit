@@ -99,11 +99,11 @@ class Signup
   private
 
   def validate_models
-    self.user.errors.each { |k, v| errors[k] = v } unless self.user.valid?
+    self.user.errors.each { |k, v| errors.add(k, v) } unless self.user.valid?
 
     <% if oauth? %>
     if self.auth.present?
-      self.auth.errors.each { |k, v| errors[k] = v } unless self.auth.valid?
+      self.auth.errors.each { |k, v| errors.add(k, v) } unless self.auth.valid?
     end
     <% end %>
   end

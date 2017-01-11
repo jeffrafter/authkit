@@ -92,6 +92,7 @@ module Authkit
 
       template "app/forms/signup.rb", "app/forms/signup.rb"
 
+      template "spec/support/shoulda_matchers.rb", "spec/support/shoulda_matchers.rb"
       template "spec/support/factory_girl.rb", "spec/support/factory_girl.rb"
       template "spec/factories/user.rb", "spec/factories/user.rb"
       template "spec/factories/user_session.rb", "spec/factories/user_session.rb"
@@ -177,7 +178,7 @@ module Authkit
 
         # Support for google client apis
         if provider?(:google)
-          gem 'google-api-client', :require => 'google/api_client'
+          gem 'google-api-client'
           gem 'faraday', '~> 0.9.0'
           gem 'faraday_middleware'
         end

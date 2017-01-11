@@ -1,7 +1,7 @@
 class PasswordChangeController < ApplicationController
-  before_filter :require_no_user
-  before_filter :require_email_user
-  before_filter :require_token
+  before_action :require_no_user
+  before_action :require_email_user
+  before_action :require_token
 
   def show
     respond_to do |format|

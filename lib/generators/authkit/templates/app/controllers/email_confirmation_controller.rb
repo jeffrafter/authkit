@@ -1,6 +1,6 @@
 class EmailConfirmationController < ApplicationController
-  before_filter :require_login
-  before_filter :require_token
+  before_action :require_login
+  before_action :require_token
 
   def show
     if current_user.email_confirmed

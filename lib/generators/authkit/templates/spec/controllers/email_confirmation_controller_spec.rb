@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe EmailConfirmationController do
+RSpec.describe EmailConfirmationController do
   render_views
 
   let(:user) { build(:user) }
@@ -9,7 +9,7 @@ describe EmailConfirmationController do
   describe "GET 'show'" do
     it "requires a login" do
       allow(controller).to receive(:current_user).and_return(nil)
-      get 'show', token: token
+      get 'show', params: { token: token }
       expect(response).to be_redirect
       expect(flash[:error]).to_not be_empty
     end
@@ -17,7 +17,7 @@ describe EmailConfirmationController do
     it "requires a valid token" do
       user.confirmation_token = "OTHER TOKEN"
       allow(controller).to receive(:current_user).and_return(user)
-      get 'show', token: token
+      get 'show', params: { token: token }
       expect(response).to be_redirect
       expect(flash[:error]).to_not be_empty
     end
@@ -26,7 +26,7 @@ describe EmailConfirmationController do
       user.confirmation_token = token
       user.confirmation_token_created_at = 4.days.ago
       allow(controller).to receive(:current_user).and_return(user)
-      get 'show', token: token
+      get 'show', params: { token: token }
       expect(response).to be_redirect
       expect(flash[:error]).to_not be_empty
     end
@@ -42,27 +42,27 @@ describe EmailConfirmationController do
       describe "when the confirmation is successful" do
         it "confirms the user email" do
           expect(user).to receive(:email_confirmed).and_return(true)
-          get 'show', token: token
+          get 'show', params: { token: token }
         end
 
         it "does not sign the user in" do
           expect(controller).to_not receive(:login)
-          get 'show', token: token
+          get 'show', params: { token: token }
         end
 
         it "sets the flash" do
-          get 'show', token: token
+          get 'show', params: { token: token }
           expect(flash[:notice]).to_not be_nil
         end
 
         it "redirects the user" do
-          get 'show', token: token
+          get 'show', params: { token: token }
           expect(response).to be_redirect
         end
 
         describe "from json" do
           it "returns http success" do
-            get 'show', token: token, format: 'json'
+            get 'show', params: { token: token, format: 'json' }
             expect(response).to be_success
           end
         end
@@ -76,7 +76,7 @@ describe EmailConfirmationController do
 
         it "handles invalid confirmations" do
           expect(user).to receive(:email_confirmed).and_return(false)
-          get 'show', token: token
+          get 'show', params: { token: token }
           expect(flash[:error]).to_not be_empty
           expect(response).to be_redirect
         end
@@ -84,7 +84,7 @@ describe EmailConfirmationController do
         describe "from json" do
           it "returns a 422" do
             expect(user).to receive(:email_confirmed).and_return(false)
-            get 'show', token: token, format: 'json'
+            get 'show', params: { token: token, format: 'json' }
             expect(response.code).to eq('422')
           end
         end

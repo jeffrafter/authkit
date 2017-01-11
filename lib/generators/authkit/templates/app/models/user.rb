@@ -2,7 +2,7 @@ require 'email_format_validator'
 require 'full_name_splitter'
 <% if username? %>require 'username_format_validator'
 <% end %>
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   has_many :sessions, class_name: 'UserSession'
   <% if oauth? %>
   has_many :auths

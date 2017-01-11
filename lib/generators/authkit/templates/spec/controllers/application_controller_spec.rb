@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe ApplicationController do
+RSpec.describe ApplicationController do
   let(:user_session) { create(:user_session) }
   let(:user) { user_session.user }
   let(:logged_in_session) { { user_session_id: user_session.id } }
@@ -11,7 +11,7 @@ describe ApplicationController do
   end
 
   controller do
-    before_filter :require_login, only: [:index]
+    before_action :require_login, only: [:index]
 
     def new
       head :ok
@@ -40,7 +40,7 @@ describe ApplicationController do
     end
 
     it "finds the current user session in the session" do
-      get :new, {}, logged_in_session
+      get :new, session: logged_in_session
       expect(controller.send(:current_user_session)).to eq(user_session)
     end
 
@@ -52,12 +52,12 @@ describe ApplicationController do
 
     it "sets the time zone" do
       expect_any_instance_of(User).to receive(:time_zone).and_return("Pacific Time (US & Canada)")
-      get :index, {}, logged_in_session
+      get :index, session: logged_in_session
       expect(Time.zone.name).to eq("Pacific Time (US & Canada)")
     end
 
     it "has a logged in helper method" do
-      get :new, {}, logged_in_session
+      get :new, session: logged_in_session
       expect(controller.send(:logged_in?)).to eq(true)
     end
   end
@@ -77,30 +77,30 @@ describe ApplicationController do
 
   describe "when requiring a user" do
     it "allows access if there is a user" do
-      get :index, {}, logged_in_session
+      get :index, session: logged_in_session
       expect(response).to be_success
     end
 
     it "stores the return path" do
-      get :index, {}
+      get :index
       expect(session[:return_url]).to eq("/anonymous")
     end
 
     describe "when responding to html" do
       it "sets the flash message" do
-        get :index, {}
+        get :index
         expect(flash).to_not be_empty
       end
 
       it "redirecs the user to login" do
-        get :index, {}
+        get :index
         expect(response).to be_redirect
       end
     end
 
     describe "when responding to json" do
       it "returns a forbidden status" do
-        get :index, {format: :json}
+        get :index, params: { format: :json }
         expect(response.code).to eq("403")
       end
     end
@@ -141,19 +141,19 @@ describe ApplicationController do
 
   describe "logout" do
     it "resets the session" do
-      get :index, {}, logged_in_session
+      get :index, session: logged_in_session
       expect(controller).to receive(:reset_session)
       controller.send(:logout)
     end
 
     it "marks the user session as logged out" do
-      get :index, {}, logged_in_session
+      get :index, session: logged_in_session
       controller.send(:logout)
       expect(user_session.reload).to be_logged_out
     end
 
     it "logs the user out" do
-      get :index, {}, logged_in_session
+      get :index, session: logged_in_session
       controller.send(:logout)
       expect(controller.send(:current_user)).to be_nil
     end
@@ -163,11 +163,11 @@ describe ApplicationController do
     request.env["action_dispatch.secret_token"] = "SECRET"
     get :new
     new_session = controller.send(:login, user, true)
-    expect(cookies.permanent.signed[:remember]).to eq(new_session.remember_token)
+    expect(controller.send(:cookies).permanent.signed[:remember]).to eq(new_session.remember_token)
   end
 
   it "redirects to a stored session location if present" do
-    get :new, {}, {return_url: "/return"}
+    get :new, session: { return_url: "/return" }
     expect(controller).to receive(:redirect_to).with("/return").and_return(true)
     controller.send(:redirect_back_or_default)
   end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe User do
+RSpec.describe User, type: :model do
   let(:user_params) { attributes_for(:user) }
 
   it { should have_many(:sessions) }
@@ -29,8 +29,8 @@ describe User do
       before(:each) do
         create(:user)
       end
-      <% if username? %>it { should validate_uniqueness_of(:username) }
-      <% end %>it { should validate_uniqueness_of(:email) }
+      <% if username? %>it { should validate_uniqueness_of(:username).case_insensitive }
+      <% end %>it { should validate_uniqueness_of(:email).case_insensitive }
       it "validates the uniqueness of the confirmation email" do
         existing_user = create(:user)
         user = build(:user, email: "old@example.com")
@@ -120,7 +120,7 @@ describe User do
 
     describe "with valid params" do
       it "confirms the email" do
-        user = User.new
+        user = build(:user)
         expect(user).to receive(:save!).and_return(true)
         allow(Time).to receive(:now).and_return(time = Time.now)
 
@@ -130,7 +130,7 @@ describe User do
       end
 
       it "generates a token before it sends confirmation email instructions" do
-        user = User.new
+        user = build(:user)
         expect(user).to receive(:save!).and_return(true)
         user.send_confirmation
         expect(user.confirmation_token).to_not be_blank
@@ -138,7 +138,7 @@ describe User do
       end
 
       it "sends confirmation email instructions" do
-        user = User.new
+        user = build(:user)
         expect(user).to receive(:save!).and_return(true)
         user.send_confirmation
       end
@@ -197,7 +197,7 @@ describe User do
     end
 
     it "doesn't change the password if it doesn't match" do
-      user = User.new
+      user = build(:user)
       user.reset_password_token = "token"
       user.change_password("password", "typotypo")
       expect(user).to_not be_valid
@@ -205,7 +205,7 @@ describe User do
     end
 
     it "resets the password" do
-      user = User.new
+      user = build(:user)
       expect(user).to receive(:save!).and_return(true)
       allow(Time).to receive(:now).and_return(time = Time.now)
 
@@ -215,7 +215,7 @@ describe User do
     end
 
     it "generates a token before it sends reset password instructions" do
-      user = User.new
+      user = build(:user)
       expect(user).to receive(:save!).and_return(true)
       user.send_reset_password
       expect(user.reset_password_token).to_not be_blank
@@ -223,7 +223,7 @@ describe User do
     end
 
     it "sends reset password instructions" do
-      user = User.new
+      user = build(:user)
       expect(user).to receive(:save!).and_return(true)
       user.send_reset_password
     end

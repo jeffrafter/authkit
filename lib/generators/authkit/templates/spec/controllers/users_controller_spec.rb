@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe UsersController do
+RSpec.describe UsersController do
   render_views
 
   let(:user_session) { create(:user_session) }
@@ -16,14 +16,14 @@ describe UsersController do
     end
 
     it "edits the current user" do
-      get :edit, {}, logged_in_session
+      get :edit, session: logged_in_session
       expect(response).to be_success
     end
   end
 
   describe "PUT 'update'" do
     it "redirects if there is no current user" do
-      put :update, {user: user_params.merge(first_name: "Alvarez")}
+      put :update, params: { user: user_params.merge(first_name: "Alvarez") }
       expect(response).to be_redirect
     end
 
@@ -37,18 +37,18 @@ describe UsersController do
           user.email = user.confirmation_email
           user.confirmation_email = nil
           expect(user).to_not receive(:send_confirmation)
-          put :update, {user: user_params.merge(confirmation_email: user.email)}, logged_in_session
+          put :update, params: { user: user_params.merge(confirmation_email: user.email) }, session: logged_in_session
         end
 
         it "doesn't reconfirm if the confirmation email is unchanged" do
           expect(user).to_not receive(:send_confirmation)
-          put :update, {user: user_params.merge(confirmation_email: user.email)}, logged_in_session
+          put :update, params: { user: user_params.merge(confirmation_email: user.email) }, session: logged_in_session
         end
 
         it "confirms the confirmation email" do
           user.email = "old@example.com"
           expect(user).to receive(:send_confirmation).and_return(true)
-          put :update, {user: user_params.merge(confirmation_email: "new@example.com")}, logged_in_session
+          put :update, params: { user: user_params.merge(confirmation_email: "new@example.com") }, session: logged_in_session
         end
       end
 
@@ -59,12 +59,12 @@ describe UsersController do
 
         it "updates the user" do
           expect {
-            put :update, {user: user_params.merge(first_name: "Alvarez")}, logged_in_session
+            put :update, params: { user: user_params.merge(first_name: "Alvarez")}, session: logged_in_session
           }.to change(user, :first_name)
         end
 
         it "redirects the user" do
-          put :update, {user: user_params}, logged_in_session
+          put :update, params: { user: user_params }, session: logged_in_session
           expect(response).to be_redirect
         end
       end
@@ -76,7 +76,7 @@ describe UsersController do
 
         it "updates the user" do
           expect {
-            put :update, {user: user_params.merge(first_name: "Alvarez"), format: 'json'}, logged_in_session
+            put :update, params: { user: user_params.merge(first_name: "Alvarez"), format: 'json' }, session: logged_in_session
           }.to change(user, :first_name)
         end
       end
@@ -89,12 +89,7 @@ describe UsersController do
 
       describe "from html" do
         before(:each) do
-          put :update, {user: invalid_params}, logged_in_session
-        end
-
-        it "renders the edit page" do
-          expect(response).to render_template('edit')
-          expect(response).to be_success
+          put :update, params: { user: invalid_params }, session: logged_in_session
         end
 
         it "sets the errors" do
@@ -104,7 +99,7 @@ describe UsersController do
 
       describe "from json" do
         before(:each) do
-          put :update, {user: invalid_params, format: 'json'}, logged_in_session
+          put :update, params: { user: invalid_params, format: 'json' }, session: logged_in_session
         end
 
         it "returns a 422" do

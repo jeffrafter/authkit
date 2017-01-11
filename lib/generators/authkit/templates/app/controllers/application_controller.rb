@@ -1,5 +1,5 @@
 
-  before_filter :set_time_zone
+  before_action :set_time_zone
 
   helper_method :logged_in?, :current_user
 
@@ -94,7 +94,7 @@
 
     session[:return_url] = request.fullpath
     respond_to do |format|
-      format.json { render(status: 403, nothing: true) }
+      format.json { head :forbidden }
       format.text { redirect_to(location) }
       format.html do
         flash[:error] = message || "Sorry, you must be logged in to do that"

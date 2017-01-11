@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe UserSession do
+RSpec.describe UserSession, type: :model do
 
   let(:user_session) { create(:user_session) }
   let(:user) { user_session.user }

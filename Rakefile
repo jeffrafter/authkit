@@ -49,7 +49,7 @@ namespace :generator do
     sed("s/# Dir/Dir/", "spec/tmp/sample/spec/rails_helper.rb")
 
     # Open up the root route for specs
-    sed("s/# root/root/", "spec/tmp/sample/config/routes.rb")
+    sed("s/#/root to: \"sessions#new\" #/", "spec/tmp/sample/config/routes.rb")
 
     # Make a thing
     # system "cd spec/tmp/sample; bin/rails g scaffold thing name:string mood:string --no-controller-specs --no-view-specs --no-helper-specs --no-routing-specs"

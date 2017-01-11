@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Signup do
+RSpec.describe Signup, type: :model do
   let(:signup) { Signup.new }
 
   it "should not be persisted" do

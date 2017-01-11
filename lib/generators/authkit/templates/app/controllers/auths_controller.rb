@@ -2,10 +2,10 @@
 # in for the connection to work. This controller is not used for creating a new
 # session.
 class AuthsController < ApplicationController
-  before_filter :require_login, only: [:connect]
-  before_filter :require_login_when_connecting, only: [:callback]
-  before_filter :require_completed_login, only: [:disconnect]
-  before_filter :require_auth_hash, only: [:callback]
+  before_action :require_login, only: [:connect]
+  before_action :require_login_when_connecting, only: [:callback]
+  before_action :require_completed_login, only: [:disconnect]
+  before_action :require_auth_hash, only: [:callback]
 
   # Adjust scope here for particular sets of user using the session
   #

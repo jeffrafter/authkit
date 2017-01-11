@@ -1,4 +1,4 @@
-class UserSession < ActiveRecord::Base
+class UserSession < ApplicationRecord
   belongs_to :user
 
   scope :active, -> { where(revoked_at: nil, logged_out_at: nil) }

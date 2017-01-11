@@ -30,6 +30,10 @@ class SignupController < ApplicationController
 
   protected
 
+  def signup
+    @signup
+  end
+
   def signup_params
     params.require(:signup).permit(
       :email,

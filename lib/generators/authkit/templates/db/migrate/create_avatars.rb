@@ -2,7 +2,7 @@
 #
 # Create an avatars table for managing user profile images
 #
-class CreateAvatars < ActiveRecord::Migration
+class CreateAvatars < ActiveRecord::Migration[5.0]
   def self.up
     create_table :avatars do |t|
       t.integer  :user_id
