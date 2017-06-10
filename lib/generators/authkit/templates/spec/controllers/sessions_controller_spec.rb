@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe SessionsController do
+RSpec.describe SessionsController, type: :controller do
   render_views
 
   let(:user_session) { create(:user_session) }
